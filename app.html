@@ -70,31 +70,55 @@
 
 <!-- STEP 3: Quick Live Data -->
 <div class="card" style="background:linear-gradient(135deg,rgba(24,240,139,.07),rgba(10,14,24,.97));border:2px solid rgba(24,240,139,.3);margin-bottom:0">
-  <h2 style="margin-bottom:8px"><span class="badge" style="background:#18f08b;color:#000">3</span> Quick Live Data <span style="font-size:11px;color:#94a3b8;font-weight:400">— read off scanner screen while at vehicle</span></h2>
+  <h2 style="margin-bottom:4px"><span class="badge" style="background:#18f08b;color:#000">3</span> Quick Live Data <span style="font-size:11px;color:#94a3b8;font-weight:400">— read off scanner screen while at vehicle</span></h2>
+  
+  <!-- MK900BT PID Reference -->
+  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px;margin-bottom:10px">
+    <div style="font-size:11px;font-weight:900;color:#33c7ff;margin-bottom:6px">📟 ON MK900BT: Live Data → Select these PIDs</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px">
+      <div style="color:#94a3b8"><span style="color:#33c7ff;font-weight:700">STFT B1</span> — Short Term Fuel Trim Bank 1</div>
+      <div style="color:#94a3b8"><span style="color:#33c7ff;font-weight:700">LTFT B1</span> — Long Term Fuel Trim Bank 1</div>
+      <div style="color:#94a3b8"><span style="color:#33c7ff;font-weight:700">STFT B2</span> — Short Term Fuel Trim Bank 2</div>
+      <div style="color:#94a3b8"><span style="color:#33c7ff;font-weight:700">LTFT B2</span> — Long Term Fuel Trim Bank 2</div>
+      <div style="color:#94a3b8"><span style="color:#18f08b;font-weight:700">MAF</span> — Mass Air Flow (g/s)</div>
+      <div style="color:#94a3b8"><span style="color:#18f08b;font-weight:700">Fuel Press</span> — Fuel Rail Pressure</div>
+      <div style="color:#94a3b8"><span style="color:#ffd05a;font-weight:700">ECT</span> — Engine Coolant Temp (°F)</div>
+      <div style="color:#94a3b8"><span style="color:#ffd05a;font-weight:700">O2 B1S1</span> — Upstream O2 Voltage</div>
+    </div>
+    <div style="font-size:10px;color:#64748b;margin-top:6px">Normal fuel trims: -10% to +10% | Lean = positive | Rich = negative</div>
+  </div>
+
+  <!-- Input fields -->
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
     <div>
-      <label style="color:#33c7ff;font-size:11px;font-weight:900">STFT Bank 1 (%)</label>
+      <label style="color:#33c7ff;font-size:11px;font-weight:900">STFT B1 (%)</label>
+      <div style="font-size:10px;color:#64748b;margin-bottom:3px">Normal: -10 to +10</div>
       <input id="qld_stft1" type="number" inputmode="decimal" placeholder="+5.5" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(51,199,255,.4);background:rgba(51,199,255,.07);color:#33c7ff" oninput="qldSync()">
     </div>
     <div>
-      <label style="color:#33c7ff;font-size:11px;font-weight:900">LTFT Bank 1 (%)</label>
+      <label style="color:#33c7ff;font-size:11px;font-weight:900">LTFT B1 (%)</label>
+      <div style="font-size:10px;color:#64748b;margin-bottom:3px">Normal: -10 to +10</div>
       <input id="qld_ltft1" type="number" inputmode="decimal" placeholder="+8.2" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(51,199,255,.4);background:rgba(51,199,255,.07);color:#33c7ff" oninput="qldSync()">
     </div>
     <div>
       <label style="color:#18f08b;font-size:11px;font-weight:900">MAF (g/s)</label>
+      <div style="font-size:10px;color:#64748b;margin-bottom:3px">~L/2 at idle</div>
       <input id="qld_maf" type="number" inputmode="decimal" placeholder="4.1" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(24,240,139,.4);background:rgba(24,240,139,.07);color:#18f08b" oninput="qldSync()">
     </div>
     <div>
-      <label style="color:#33c7ff;font-size:11px;font-weight:900">STFT Bank 2 (%)</label>
+      <label style="color:#33c7ff;font-size:11px;font-weight:900">STFT B2 (%)</label>
+      <div style="font-size:10px;color:#64748b;margin-bottom:3px">Normal: -10 to +10</div>
       <input id="qld_stft2" type="number" inputmode="decimal" placeholder="+5.0" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(51,199,255,.4);background:rgba(51,199,255,.07);color:#33c7ff" oninput="qldSync()">
     </div>
     <div>
-      <label style="color:#33c7ff;font-size:11px;font-weight:900">LTFT Bank 2 (%)</label>
+      <label style="color:#33c7ff;font-size:11px;font-weight:900">LTFT B2 (%)</label>
+      <div style="font-size:10px;color:#64748b;margin-bottom:3px">Normal: -10 to +10</div>
       <input id="qld_ltft2" type="number" inputmode="decimal" placeholder="+7.8" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(51,199,255,.4);background:rgba(51,199,255,.07);color:#33c7ff" oninput="qldSync()">
     </div>
     <div>
       <label style="color:#18f08b;font-size:11px;font-weight:900">Fuel Pressure</label>
-      <select id="qld_fuelpressure" style="font-size:16px;font-weight:900;height:52px;border:2px solid rgba(24,240,139,.4);background:rgba(24,240,139,.07);color:#18f08b" onchange="qldSync()">
+      <div style="font-size:10px;color:#64748b;margin-bottom:3px">Low = delivery issue</div>
+      <select id="qld_fuelpressure" style="font-size:14px;font-weight:900;height:52px;border:2px solid rgba(24,240,139,.4);background:rgba(24,240,139,.07);color:#18f08b" onchange="qldSync()">
         <option value="">Select</option>
         <option value="Normal">✅ Normal</option>
         <option value="Low">🔴 Low</option>
@@ -103,7 +127,31 @@
       </select>
     </div>
   </div>
+
+  <!-- Extra fields row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
+    <div>
+      <label style="color:#ffd05a;font-size:11px;font-weight:900">ECT (°F)</label>
+      <div style="font-size:10px;color:#64748b;margin-bottom:3px">Normal warm: 185-220°F</div>
+      <input id="qld_ect" type="number" inputmode="decimal" placeholder="198" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(255,208,90,.4);background:rgba(255,208,90,.07);color:#ffd05a" oninput="qldSync()">
+    </div>
+    <div>
+      <label style="color:#ffd05a;font-size:11px;font-weight:900">Battery (V)</label>
+      <div style="font-size:10px;color:#64748b;margin-bottom:3px">KOEO: 12.4+ | Running: 13.5-14.8</div>
+      <input id="qld_koeo" type="number" inputmode="decimal" placeholder="14.2" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(255,208,90,.4);background:rgba(255,208,90,.07);color:#ffd05a" oninput="qldSync()">
+    </div>
+    <div>
+      <label style="color:#ffd05a;font-size:11px;font-weight:900">RPM</label>
+      <div style="font-size:10px;color:#64748b;margin-bottom:3px">Warm idle: 550-800</div>
+      <input id="qld_rpm" type="number" inputmode="decimal" placeholder="780" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(255,208,90,.4);background:rgba(255,208,90,.07);color:#ffd05a" oninput="qldSync()">
+    </div>
+  </div>
+
   <div id="qldPattern" style="margin-top:10px;display:none"></div>
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <button class="btn green" onclick="qldAnalyze()" style="flex:1;font-size:14px">⚡ Fill + Analyze Now</button>
+    <button class="btn ghost" onclick="qldClear()" style="font-size:12px;padding:10px 14px">Clear</button>
+  </div>
 </div>
 
 <!-- STEP 4: Known Problems (hidden until VIN pull) -->
@@ -648,7 +696,7 @@ function setScannerBrand(brand){
 // ── QUICK LIVE DATA ───────────────────────────────────────────────────────────
 function qldSync(){
   // Sync values to main fields
-  const map=[['qld_stft1','stft1'],['qld_ltft1','ltft1'],['qld_stft2','stft2'],['qld_ltft2','ltft2'],['qld_maf','maf'],['qld_fuelpressure','fuelPressure']];
+  const map=[['qld_stft1','stft1'],['qld_ltft1','ltft1'],['qld_stft2','stft2'],['qld_ltft2','ltft2'],['qld_maf','maf'],['qld_fuelpressure','fuelPressure'],['qld_ect','ect'],['qld_koeo','koeo'],['qld_rpm','rpm']];
   map.forEach(([src,dst])=>{
     const s=$( src), d=$(dst);
     if(s&&d&&s.value) d.value=s.value;
@@ -691,7 +739,7 @@ function qldAnalyze(){
 }
 
 function qldClear(){
-  ['qld_stft1','qld_ltft1','qld_stft2','qld_ltft2','qld_maf','qld_fuelpressure'].forEach(id=>{
+  ['qld_stft1','qld_ltft1','qld_stft2','qld_ltft2','qld_maf','qld_fuelpressure','qld_ect','qld_koeo','qld_rpm'].forEach(id=>{
     const el=$(id); if(el) el.value='';
   });
   const pat=$('qldPattern');
