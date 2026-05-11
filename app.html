@@ -13,33 +13,88 @@
 <div class="app">
 <header class="top"><div class="logo" id="logo"></div><div><h1>AutoMedic Diagnostics Pinpoint Pro V10</h1><div class="tag">We Give Answers, Not Codes.</div><div class="sub">Live data + fuel trim import • VIN full decode • vehicle tag storage • baseline/value hub • scanner upload • diagrams • history • <span class="phone">850-368-2285</span></div></div></header>
 <nav class="nav" id="nav"><button class="active" data-tab="dash">Dashboard</button><button data-tab="import">IMPORT SCANNER DATA</button><button data-tab="values">VALUES HUB</button><button data-tab="liveimport">Live Data Import</button><button data-tab="scanner">Scanner Upload</button><button data-tab="diagrams">Electrical + Diagrams</button><button data-tab="tests">Guided Tests</button><button data-tab="history">History</button><button data-tab="report">Report</button></nav>
-<section id="dash" class="tab active"><div class="grid"><div class="card"><h2><span class="badge">1</span> Analyze Console</h2><div class="dash"><div class="gauge"><div class="needle" id="needle"></div><div class="center"><b id="rpmDisplay">0</b><span>RPM / SIGNAL</span></div></div><div><div class="bigAnswer" id="primaryAnswer">Need More Input</div><div class="conf" id="confidence">0%</div><div class="chips" id="whyChips"><span class="chip">Enter VIN</span><span class="chip">Fill Values Hub</span><span class="chip">Tap Analyze</span></div><p class="mini" id="whyText">The app needs vehicle data, symptoms, codes, and key live values.</p><p><b>Next:</b> <span id="nextTest">Open VALUES HUB and enter the data.</span></p><button class="btn green full" onclick="analyzeAll(true)">ANALYZE NOW</button><div class="btns" style="margin-top:10px"><button class="btn blue" onclick="showTab('values')">Open Values Hub</button><button class="btn ghost" onclick="saveJob()">Save Job</button></div></div></div><div class="warnbox">V11 adds a simple <b>IMPORT SCANNER DATA</b> workflow. Scan with the MK900BT or any full-system scanner, save/share the report, import or paste it here, then AutoMedic fills codes/live data and analyzes.</div></div><div class="card wide" style="background:linear-gradient(135deg,rgba(255,23,61,.12),rgba(10,14,24,.97));border:2px solid rgba(255,23,61,.4)">
-  <h2><span class="badge" style="background:var(--green);color:#000">⚡</span> QUICK LIVE DATA — Fill While At Vehicle</h2>
-  <p class="hint" style="color:#94a3b8;margin-bottom:12px">Read these 6 values off the scanner live data screen and enter them here. This is the fastest path to a diagnosis.</p>
-  <div class="grid3" style="gap:10px">
+<section id="dash" class="tab active"><div style="display:flex;flex-direction:column;gap:12px">
+
+<!-- STEP 1+2: VIN Pull + Customer side by side -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+  <div class="card" style="border:2px solid rgba(51,199,255,.35);margin-bottom:0">
+    <h2 style="margin-bottom:8px"><span class="badge" style="background:#33c7ff;color:#000">1</span> VIN Pull</h2>
+    <label>VIN (17 characters)</label>
+    <input id="vinQuick" placeholder="Enter VIN" autocapitalize="characters" spellcheck="false" oninput="syncVin(this.value,true)" style="font-size:14px;font-weight:700;letter-spacing:1px">
+    <div style="display:grid;grid-template-columns:1fr 56px;gap:6px;margin-top:6px">
+      <input id="tagQuick" placeholder="Plate / Tag #" autocapitalize="characters" spellcheck="false" oninput="syncTag(this.value,true)" style="font-size:12px">
+      <input id="plateStateQuick" placeholder="FL" autocapitalize="characters" spellcheck="false" oninput="syncPlateState(this.value,true)" style="font-size:12px;text-align:center">
+    </div>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+      <button class="btn blue" onclick="decodeAll()" style="font-size:12px;padding:9px 10px;flex:1">📡 Pull Vehicle Data</button>
+      <button class="btn" onclick="showTab('import')" style="font-size:12px;padding:9px 10px;flex:1">📥 Import Scanner</button>
+    </div>
+    <div id="status" class="okbox" style="font-size:11px;margin-top:8px;padding:8px">Ready — enter VIN and tap Pull.</div>
+    <div id="vinPullStatus"></div>
+    <p class="mini" id="vehicleSummary" style="margin-top:6px;color:#33c7ff;font-weight:700">No vehicle loaded yet.</p>
+    <div style="margin-top:6px">
+      <div class="meterBar"><span id="readyBar"></span></div>
+      <p id="readyText" class="mini">0% ready</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:0">
+    <h2 style="margin-bottom:8px"><span class="badge">2</span> Customer</h2>
+    <label>Customer Name</label>
+    <input id="customerNameDash" placeholder="Full name" style="font-size:13px" oninput="syncField('customerName',this.value)">
+    <label>Phone</label>
+    <input id="customerPhoneDash" placeholder="Phone number" style="font-size:13px" oninput="syncField('customerPhone',this.value)">
+    <label>Complaint</label>
+    <textarea id="complaintDash" placeholder="What is the customer reporting?" style="min-height:54px;font-size:12px;resize:none" oninput="syncField('complaint',this.value)"></textarea>
+    <label>Main Symptom</label>
+    <select id="symptomDash" style="font-size:13px;height:40px" onchange="syncField('symptom',this.value)">
+      <option value="">Select symptom…</option>
+      <option>Check Engine Light</option>
+      <option>Rough Idle</option>
+      <option>High Idle</option>
+      <option>Stalling</option>
+      <option>Misfire</option>
+      <option>Hard Start</option>
+      <option>Cranks No Start</option>
+      <option>Hesitation</option>
+      <option>Transmission</option>
+      <option>ABS Light</option>
+      <option>No Start</option>
+      <option>Other</option>
+    </select>
+    <label>Mileage</label>
+    <input id="mileageDash" placeholder="Current mileage" style="font-size:13px" oninput="syncField('mileage',this.value)">
+  </div>
+</div>
+
+<!-- STEP 3: Quick Live Data -->
+<div class="card" style="background:linear-gradient(135deg,rgba(24,240,139,.07),rgba(10,14,24,.97));border:2px solid rgba(24,240,139,.3);margin-bottom:0">
+  <h2 style="margin-bottom:8px"><span class="badge" style="background:#18f08b;color:#000">3</span> Quick Live Data <span style="font-size:11px;color:#94a3b8;font-weight:400">— read off scanner screen while at vehicle</span></h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
     <div>
-      <label style="color:#33c7ff;font-size:13px;font-weight:900">STFT Bank 1 (%)</label>
-      <input id="qld_stft1" type="number" inputmode="decimal" placeholder="+5.5" style="font-size:28px;font-weight:900;text-align:center;height:64px;border:2px solid rgba(51,199,255,.4);background:rgba(51,199,255,.07);color:#33c7ff" oninput="qldSync()">
+      <label style="color:#33c7ff;font-size:11px;font-weight:900">STFT Bank 1 (%)</label>
+      <input id="qld_stft1" type="number" inputmode="decimal" placeholder="+5.5" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(51,199,255,.4);background:rgba(51,199,255,.07);color:#33c7ff" oninput="qldSync()">
     </div>
     <div>
-      <label style="color:#33c7ff;font-size:13px;font-weight:900">LTFT Bank 1 (%)</label>
-      <input id="qld_ltft1" type="number" inputmode="decimal" placeholder="+8.2" style="font-size:28px;font-weight:900;text-align:center;height:64px;border:2px solid rgba(51,199,255,.4);background:rgba(51,199,255,.07);color:#33c7ff" oninput="qldSync()">
+      <label style="color:#33c7ff;font-size:11px;font-weight:900">LTFT Bank 1 (%)</label>
+      <input id="qld_ltft1" type="number" inputmode="decimal" placeholder="+8.2" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(51,199,255,.4);background:rgba(51,199,255,.07);color:#33c7ff" oninput="qldSync()">
     </div>
     <div>
-      <label style="color:#33c7ff;font-size:13px;font-weight:900">STFT Bank 2 (%)</label>
-      <input id="qld_stft2" type="number" inputmode="decimal" placeholder="+5.0" style="font-size:28px;font-weight:900;text-align:center;height:64px;border:2px solid rgba(51,199,255,.4);background:rgba(51,199,255,.07);color:#33c7ff" oninput="qldSync()">
+      <label style="color:#18f08b;font-size:11px;font-weight:900">MAF (g/s)</label>
+      <input id="qld_maf" type="number" inputmode="decimal" placeholder="4.1" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(24,240,139,.4);background:rgba(24,240,139,.07);color:#18f08b" oninput="qldSync()">
     </div>
     <div>
-      <label style="color:#33c7ff;font-size:13px;font-weight:900">LTFT Bank 2 (%)</label>
-      <input id="qld_ltft2" type="number" inputmode="decimal" placeholder="+7.8" style="font-size:28px;font-weight:900;text-align:center;height:64px;border:2px solid rgba(51,199,255,.4);background:rgba(51,199,255,.07);color:#33c7ff" oninput="qldSync()">
+      <label style="color:#33c7ff;font-size:11px;font-weight:900">STFT Bank 2 (%)</label>
+      <input id="qld_stft2" type="number" inputmode="decimal" placeholder="+5.0" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(51,199,255,.4);background:rgba(51,199,255,.07);color:#33c7ff" oninput="qldSync()">
     </div>
     <div>
-      <label style="color:#18f08b;font-size:13px;font-weight:900">MAF (g/s)</label>
-      <input id="qld_maf" type="number" inputmode="decimal" placeholder="4.1" style="font-size:28px;font-weight:900;text-align:center;height:64px;border:2px solid rgba(24,240,139,.4);background:rgba(24,240,139,.07);color:#18f08b" oninput="qldSync()">
+      <label style="color:#33c7ff;font-size:11px;font-weight:900">LTFT Bank 2 (%)</label>
+      <input id="qld_ltft2" type="number" inputmode="decimal" placeholder="+7.8" style="font-size:22px;font-weight:900;text-align:center;height:52px;border:2px solid rgba(51,199,255,.4);background:rgba(51,199,255,.07);color:#33c7ff" oninput="qldSync()">
     </div>
     <div>
-      <label style="color:#18f08b;font-size:13px;font-weight:900">Fuel Pressure</label>
-      <select id="qld_fuelpressure" style="font-size:20px;font-weight:900;text-align:center;height:64px;border:2px solid rgba(24,240,139,.4);background:rgba(24,240,139,.07);color:#18f08b" onchange="qldSync()">
+      <label style="color:#18f08b;font-size:11px;font-weight:900">Fuel Pressure</label>
+      <select id="qld_fuelpressure" style="font-size:16px;font-weight:900;height:52px;border:2px solid rgba(24,240,139,.4);background:rgba(24,240,139,.07);color:#18f08b" onchange="qldSync()">
         <option value="">Select</option>
         <option value="Normal">✅ Normal</option>
         <option value="Low">🔴 Low</option>
@@ -48,20 +103,46 @@
       </select>
     </div>
   </div>
-  <div id="qldPattern" style="margin-top:12px;display:none"></div>
-  <div class="btns" style="margin-top:12px">
-    <button class="btn green" onclick="qldAnalyze()" style="font-size:16px;padding:14px 24px">⚡ FILL + ANALYZE NOW</button>
-    <button class="btn ghost" onclick="qldClear()">Clear</button>
+  <div id="qldPattern" style="margin-top:10px;display:none"></div>
+</div>
+
+<!-- STEP 4: Known Problems (hidden until VIN pull) -->
+<div class="card wide" id="knownProblemsCard" style="display:none;background:linear-gradient(135deg,rgba(255,208,90,.08),rgba(10,14,24,.97));border:1px solid rgba(255,208,90,.3);margin-bottom:0">
+  <h2 style="color:#ffd05a"><span class="badge" style="background:#ffd05a;color:#000">⚠</span> Known Problems — <span id="knownProblemsVehicle"></span></h2>
+  <div id="knownProblemsList" style="display:grid;gap:8px;margin-top:4px"></div>
+  <div style="margin-top:8px;font-size:11px;color:#94a3b8">Source: NHTSA complaint database. Use as a starting point, not a diagnosis.</div>
+</div>
+
+<!-- STEP 5+6: Analyze + Report side by side -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+  <div class="card" style="margin-bottom:0">
+    <h2 style="margin-bottom:8px"><span class="badge" style="background:#18f08b;color:#000">5</span> Analyze</h2>
+    <div class="bigAnswer" id="primaryAnswer" style="font-size:18px;line-height:1.2;margin-bottom:6px">Need More Input</div>
+    <div class="conf" id="confidence" style="margin-bottom:6px">0%</div>
+    <p class="mini" id="whyText" style="margin-bottom:4px">Enter VIN, symptom, codes, and live values — then tap Analyze.</p>
+    <p class="mini"><b>Next:</b> <span id="nextTest">Fill data above first.</span></p>
+    <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn green" onclick="analyzeAll(true)" style="font-size:13px;padding:10px;flex:1">⚡ ANALYZE NOW</button>
+      <button class="btn ghost" onclick="saveJob()" style="font-size:12px;padding:10px">Save Job</button>
+    </div>
+    <div class="chips" id="whyChips" style="margin-top:8px"><span class="chip">Enter VIN</span><span class="chip">Fill Values</span><span class="chip">Tap Analyze</span></div>
+  </div>
+
+  <div class="card" style="margin-bottom:0">
+    <h2 style="margin-bottom:8px"><span class="badge">6</span> Report</h2>
+    <p class="mini" style="margin-bottom:10px">Generate customer report after analysis. Copy and text or email directly.</p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn green" onclick="buildReport();showTab('report')" style="font-size:13px;padding:10px">📄 Generate Report</button>
+      <button class="btn blue" onclick="showTab('values')" style="font-size:12px;padding:9px">📋 Values Hub</button>
+      <button class="btn ghost" onclick="showTab('import')" style="font-size:12px;padding:9px">📥 Import Scanner Data</button>
+      <button class="btn ghost" onclick="showTab('history')" style="font-size:12px;padding:9px">📁 Job History</button>
+    </div>
+    <div class="warnbox" style="margin-top:10px;font-size:11px">AutoMedic Diagnostics provides diagnostic testing only. No repairs performed.</div>
   </div>
 </div>
 
-<div class="card wide" id="knownProblemsCard" style="display:none;background:linear-gradient(135deg,rgba(255,208,90,.08),rgba(10,14,24,.97));border:1px solid rgba(255,208,90,.3)">
-  <h2 style="color:#ffd05a"><span class="badge" style="background:#ffd05a;color:#000">⚠</span> Known Problem Patterns — <span id="knownProblemsVehicle"></span></h2>
-  <div id="knownProblemsList" style="display:grid;gap:8px;margin-top:4px"></div>
-  <div style="margin-top:10px;font-size:11px;color:#94a3b8">Source: NHTSA complaint database. These are patterns reported by owners — not confirmed defects. Use as a starting point, not a diagnosis.</div>
-</div>
-
-<div class="card sticky"><h2><span class="badge">2</span> Quick VIN Pull</h2><label>VIN</label><input id="vinQuick" placeholder="Enter VIN here" autocapitalize="characters" spellcheck="false" oninput="syncVin(this.value,true)"><div class="row"><div><label>Vehicle Tag / Plate #</label><input id="tagQuick" placeholder="Customer tag / plate" autocapitalize="characters" spellcheck="false" oninput="syncTag(this.value,true)"></div><div><label>Plate State</label><input id="plateStateQuick" placeholder="FL" autocapitalize="characters" spellcheck="false" oninput="syncPlateState(this.value,true)"></div></div><p class="mini">Tag field is for job lookup/storage only. Free public tag-to-VIN/owner lookup is not added due privacy restrictions.</p><div class="btns" style="margin-top:10px"><button class="btn blue" onclick="decodeAll()">Pull All Vehicle Data</button><button class="btn" onclick="showTab('import')">Import Scanner Data</button></div><div id="status" class="okbox">Ready. Enter VIN above and tap Pull All Vehicle Data.</div><div id="vinPullStatus"></div><h3>Vehicle</h3><p class="mini" id="vehicleSummary">No VIN pulled yet.</p><h3>Readiness</h3><div class="meterBar"><span id="readyBar"></span></div><p id="readyText" class="mini">0% ready.</p></div></div></section>
+</div></section>
 
 <section id="import" class="tab">
   <div class="grid">
@@ -543,6 +624,13 @@ if($('importFileUpload'))$('importFileUpload').addEventListener('change',async e
 
 
 
+
+
+// ── DASHBOARD FIELD SYNC ──────────────────────────────────────────────────────
+function syncField(id, value){
+  const el=$(id); if(el) el.value=value;
+  updateReadiness();
+}
 
 // ── SCANNER BRAND SELECTOR ────────────────────────────────────────────────────
 function setScannerBrand(brand){
