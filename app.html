@@ -344,27 +344,32 @@ pre{white-space:pre-wrap;background:rgba(0,0,0,.45);border:1px solid var(--line)
     </div>
     <div class="card wide">
       <h2><span class="badge">📷</span> Scan QR Code from MK900BT</h2>
-      <p class="hint">Generate a QR code on your Autel scanner → tap Scan QR → point phone camera at scanner screen → app reads and auto-fills.</p>
-      <div class="btns">
-        <button class="btn green" onclick="startQRScan()">📷 Scan QR Code</button>
-        <button class="btn ghost" id="qrStopBtn" style="display:none" onclick="stopQRScan()">Stop Camera</button>
+      <p class="hint">Generate a QR code on your Autel scanner → tap the button below → point your camera at the scanner screen → AI reads the QR and auto-fills everything. No library needed — works on any phone.</p>
+      <div class="btns" style="margin-bottom:10px">
+        <label class="btn green" style="cursor:pointer;margin:0;display:inline-flex;align-items:center;gap:8px">
+          📷 Scan QR Code
+          <input type="file" id="qrImageInput" accept="image/*" capture="environment" style="display:none" onchange="handleQRImageCapture(this)">
+        </label>
+        <button class="btn ghost" onclick="clearQRResult()" style="font-size:12px;padding:10px 14px">Clear</button>
       </div>
       <div id="qrStatus" class="okbox" style="margin-top:10px;display:none"></div>
-      <div style="position:relative;margin-top:12px;display:none" id="qrCameraBox">
-        <video id="qrVideo" autoplay playsinline muted style="width:100%;border-radius:14px;border:2px solid var(--blue);background:#000;max-height:300px;object-fit:cover"></video>
-        <div style="position:absolute;inset:0;display:grid;place-items:center;pointer-events:none">
-          <div style="width:200px;height:200px;border:3px solid rgba(51,199,255,.8);border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.45)"></div>
-        </div>
-        <p style="text-align:center;color:var(--muted);font-size:12px;margin-top:8px">Point camera at QR code on scanner screen</p>
-      </div>
+      <img id="qrPreviewImg" style="display:none;width:100%;max-height:200px;object-fit:contain;border-radius:12px;border:1px solid var(--line);margin-top:8px" alt="QR scan preview">
       <div id="qrResult" style="display:none;margin-top:10px"></div>
     </div>
     <div class="card">
       <h2><span class="badge">2</span> Paste Scanner Report Text</h2>
-      <textarea id="scanTextImport" placeholder="Paste full scanner report text here."></textarea>
+      <textarea id="scanTextImport" placeholder="Paste full scanner report text here." oninput="detectPDFPaste(this)"></textarea>
       <div class="btns" style="margin-top:10px">
         <button class="btn blue" onclick="importAllScannerData(false)">Read Pasted Report</button>
-        <button class="btn ghost" onclick="document.getElementById('scanTextImport').value=''">Clear</button>
+        <button class="btn ghost" onclick="document.getElementById('scanTextImport').value='';hidePDFWarning()">Clear</button>
+      </div>
+      <div id="pdfPasteWarning" style="display:none;margin-top:10px" class="badbox">
+        ⚠️ <b>PDF binary detected</b> — you pasted a PDF file's raw data, not readable text.<br><br>
+        <b>To get text from your Autel report:</b><br>
+        1. On your MK900BT — tap Share → Email report to yourself<br>
+        2. Open the email on your phone → the report shows as readable text<br>
+        3. Select all → Copy → paste here<br><br>
+        OR use the <b>📷 Photo OCR tab</b> — take a photo of the scanner screen and AI reads the values directly.
       </div>
     </div>
     <div class="card">
@@ -1375,179 +1380,44 @@ function qldClear(){
   const pat=$('qldPattern');if(pat)pat.style.display='none';
 }
 
-// ── QR CODE SCANNER ────────────────────────────────────────────────────────────
-let qrStream=null,qrAnimFrame=null,qrDetector=null;
-function qrShow(id,show){const el=$(id);if(el)el.style.display=show?'':'none'}
-function qrSetStatus(msg,type='ok'){const el=$('qrStatus');if(!el)return;el.style.display='';el.className=type==='bad'?'badbox':type==='warn'?'warnbox':'okbox';el.textContent=msg}
+// ── QR CODE SCANNER — Native Camera + Claude Vision ──────────────────────────
+// Uses native iOS/Android camera input (no external library needed).
+// Claude Vision reads the QR code from the photo and extracts the URL or text.
 
-async function startQRScan(){
-  qrSetStatus('Starting camera…');qrShow('qrCameraBox',true);qrShow('qrStopBtn',true);qrShow('qrResult',false);
-  try{
-    qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
-    const video=$('qrVideo');video.srcObject=qrStream;await video.play();
-    qrSetStatus('Camera ready — point at the QR code on the scanner screen.');
-    if('BarcodeDetector' in window){
-      qrDetector=new BarcodeDetector({formats:['qr_code']});
-      qrScanLoop();
-    } else {
-      // BarcodeDetector not available — load jsQR with multi-CDN fallback
-      qrSetStatus('Loading QR decoder…');
-      loadJsQR();
-    }
-  }catch(e){qrSetStatus('Camera access denied: '+e.message+'. Check browser permissions.','bad');stopQRScan()}
-}
+async function handleQRImageCapture(input){
+  const file = input.files[0];
+  if(!file) return;
 
-function qrScanLoop(){
-  const video=$('qrVideo');if(!video||!qrStream)return;
-  qrAnimFrame=requestAnimationFrame(async()=>{
-    if(video.readyState===video.HAVE_ENOUGH_DATA){try{const codes=await qrDetector.detect(video);if(codes&&codes.length>0){await handleQRResult(codes[0].rawValue);return}}catch(e){}}
-    qrScanLoop();
-  });
-}
+  // Show preview
+  const preview = $('qrPreviewImg');
+  const statusEl = $('qrStatus');
+  const resultEl = $('qrResult');
+  if(preview){ preview.src = URL.createObjectURL(file); preview.style.display='block'; }
+  if(statusEl){ statusEl.style.display=''; statusEl.className='warnbox'; statusEl.textContent='🤖 AI reading QR code from photo…'; }
+  if(resultEl) resultEl.style.display='none';
 
-function qrScanLoopJSQR(){
-  const video=$('qrVideo');if(!video||!qrStream)return;
-  qrAnimFrame=requestAnimationFrame(()=>{
-    if(video.readyState===video.HAVE_ENOUGH_DATA){
-      const canvas=document.createElement('canvas');
-      canvas.width=video.videoWidth||640;canvas.height=video.videoHeight||480;
-      const ctx=canvas.getContext('2d');ctx.drawImage(video,0,0,canvas.width,canvas.height);
+  // Convert to base64
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const dataUrl = e.target.result;
+    const base64 = dataUrl.split(',')[1];
+    const mediaType = file.type || 'image/jpeg';
 
-      try{
-        // Try ZXing first (better iOS Safari, better QR detection)
-        if(typeof ZXing!=='undefined'){
-          const hints=new Map();
-          const formats=[ZXing.BarcodeFormat.QR_CODE];
-          hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,formats);
-          const reader=new ZXing.MultiFormatReader();
-          reader.setHints(hints);
-          const lum=new ZXing.HTMLCanvasElementLuminanceSource(canvas);
-          const bmp=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(lum));
-          const result=reader.decode(bmp);
-          if(result){handleQRResult(result.getText());return;}
-        }
-        // jsQR fallback
-        if(typeof jsQR!=='undefined'){
-          const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
-          const code=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:'attemptBoth'});
-          if(code){handleQRResult(code.data);return;}
-        }
-      }catch(e){}
-    }
-    qrScanLoopJSQR();
-  });
-}
-
-async function handleQRResult(raw){
-  stopQRScan();qrSetStatus('QR code detected! Reading report…');
-  const resultBox=$('qrResult');if(resultBox){resultBox.style.display='';resultBox.className='okbox';resultBox.textContent='QR detected: '+raw.slice(0,80)+'…'}
-  if(raw.startsWith('http')){
-    qrSetStatus('Fetching report from URL…');
     try{
-      let text='';
-      try{const r=await fetch(raw,{cache:'no-store'});if(r.ok)text=await r.text();else throw new Error('HTTP '+r.status)}
-      catch(e1){const r=await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(raw),{cache:'no-store'});if(r.ok)text=await r.text();else throw new Error('proxy failed')}
-      if(text.includes('<html')){const tmp=document.createElement('div');tmp.innerHTML=text;text=tmp.innerText||tmp.textContent||text}
-      if($('scanTextImport'))$('scanTextImport').value=text;
-      qrSetStatus('Report loaded from QR! Running auto-fill…','ok');
-      await importAllScannerData(false);
-      qrSetStatus('✅ QR import complete. Review Values Hub then tap Analyze.','ok');
-    }catch(e){qrSetStatus('QR URL fetch failed: '+e.message,'bad')}
-  }else{
-    if($('scanTextImport'))$('scanTextImport').value=raw;
-    qrSetStatus('QR text loaded! Running auto-fill…');
-    await importAllScannerData(false);
-    qrSetStatus('✅ QR import complete. Review Values Hub then tap Analyze.');
-  }
-}
-
-// ── JSQR MULTI-CDN LOADER ─────────────────────────────────────────────────────
-// Tries 4 CDNs in order. If all fail, falls back to Claude Vision OCR as QR decoder.
-function loadJsQR(){
-  const cdns = [
-    // ZXing — best iOS Safari support, recommended from field testing
-    'https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1/umd/index.min.js',
-    'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js',
-    // jsQR fallbacks
-    'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js',
-    'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'
-  ];
-  let idx = 0;
-  function tryNext(){
-    if(idx >= cdns.length){
-      // All CDNs failed — use Claude Vision as fallback QR decoder
-      qrSetStatus('QR decoder unavailable. Using camera capture → AI fallback.','warn');
-      startQRCaptureFallback();
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = cdns[idx++];
-    script.onload = () => {
-      if(typeof ZXing !== 'undefined' || typeof jsQR !== 'undefined'){
-        qrSetStatus('Camera ready — hold scanner QR steady in the frame.');
-        qrScanLoopJSQR();
-      } else {
-        tryNext();
-      }
-    };
-    script.onerror = () => tryNext();
-    document.head.appendChild(script);
-  }
-  tryNext();
-}
-
-// ── CAMERA CAPTURE FALLBACK (when jsQR fails, use Claude Vision to read QR) ──
-// Takes a snapshot from the camera stream and sends it to Claude Vision
-// to extract the QR content — works even when jsQR library won't load.
-async function startQRCaptureFallback(){
-  const video = $('qrVideo');
-  if(!video || !qrStream){
-    qrSetStatus('Camera not active. Tap Scan QR again.','bad');
-    return;
-  }
-  qrSetStatus('📸 Tap the button to capture the QR code from the camera…');
-
-  // Show capture button
-  const captureBtn = document.createElement('button');
-  captureBtn.className = 'btn green';
-  captureBtn.style.cssText = 'width:100%;margin-top:10px;font-size:16px;padding:14px';
-  captureBtn.textContent = '📸 Capture QR Code Now';
-  captureBtn.id = 'qrCaptureBtn';
-
-  const qrBox = $('qrCameraBox');
-  if(qrBox && !$('qrCaptureBtn')) qrBox.appendChild(captureBtn);
-
-  captureBtn.onclick = async () => {
-    captureBtn.textContent = '🤖 AI reading QR…';
-    captureBtn.disabled = true;
-
-    // Capture frame from video
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageData = canvas.toDataURL('image/jpeg', 0.9);
-    const base64 = imageData.split(',')[1];
-
-    stopQRScan();
-    captureBtn.remove();
-
-    qrSetStatus('🤖 Claude Vision reading QR code…');
-
-    try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 500,
-          messages: [{
-            role: 'user',
-            content: [
-              {type:'image', source:{type:'base64', media_type:'image/jpeg', data:base64}},
-              {type:'text', text:'This is a camera frame showing a QR code on an Autel scanner screen. Read the QR code and return ONLY the exact text or URL encoded in it, nothing else. If you cannot read it clearly, say UNREADABLE.'}
+      const response = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:500,
+          messages:[{
+            role:'user',
+            content:[
+              {type:'image', source:{type:'base64', media_type:mediaType, data:base64}},
+              {type:'text', text:'This image contains a QR code on an Autel scanner screen. Read the QR code and return ONLY the exact text or URL encoded in it — nothing else, no explanation. If you cannot read a QR code in this image, reply with exactly: UNREADABLE'}
             ]
           }]
         })
@@ -1558,27 +1428,41 @@ async function startQRCaptureFallback(){
       const qrText = (data.content?.find(c=>c.type==='text')?.text||'').trim();
 
       if(!qrText || qrText === 'UNREADABLE' || qrText.length < 3){
-        qrSetStatus('QR could not be read. Try: better lighting, hold camera steady, fill frame with QR.','bad');
+        if(statusEl){ statusEl.className='badbox'; statusEl.textContent='QR code could not be read. Tips: better lighting, hold steady, fill the frame with the QR code. Or use the paste method below.'; }
         return;
       }
 
-      qrSetStatus('QR decoded by AI: '+qrText.slice(0,60)+'…');
+      if(statusEl){ statusEl.className='okbox'; statusEl.textContent='✅ QR decoded — fetching report…'; }
+      if(resultEl){ resultEl.style.display=''; resultEl.className='okbox'; resultEl.textContent='QR: '+qrText.slice(0,80)+'…'; }
+
+      // Handle the decoded QR content
       await handleQRResult(qrText);
 
-    } catch(e) {
-      qrSetStatus('AI QR read failed: '+e.message+'. Use the paste method instead.','bad');
+    }catch(e){
+      if(statusEl){ statusEl.className='badbox'; statusEl.textContent='Error reading QR: '+e.message+'. Try the paste method below instead.'; }
     }
   };
+  reader.readAsDataURL(file);
 }
 
-function stopQRScan(){
-  if(qrAnimFrame){cancelAnimationFrame(qrAnimFrame);qrAnimFrame=null}
-  if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null}
-  const video=$('qrVideo');if(video)video.srcObject=null;
-  // Clean up capture fallback button if present
-  const captureBtn=$('qrCaptureBtn');if(captureBtn)captureBtn.remove();
-  qrShow('qrCameraBox',false);qrShow('qrStopBtn',false);
+function clearQRResult(){
+  const els = ['qrStatus','qrResult','qrPreviewImg'];
+  els.forEach(id=>{ const el=$(id); if(el){ el.style.display='none'; if(el.tagName==='IMG') el.src=''; else el.textContent=''; }});
+  const input=$('qrImageInput'); if(input) input.value='';
 }
+
+// Keep handleQRResult for processing the decoded URL/text
+// (already defined above in the fetch chain section)
+
+// Stub out old functions so nothing breaks if called
+function startQRScan(){ 
+  // Trigger the native camera input instead
+  const input=$('qrImageInput');
+  if(input) input.click();
+}
+function stopQRScan(){}
+function loadJsQR(){}
+function startQRCaptureFallback(){}
 
 // ── FIELD SYNC ─────────────────────────────────────────────────────────────────
 function syncField(id,value){const el=$(id);if(el)el.value=value;updateReadiness()}
@@ -2043,6 +1927,19 @@ Return ONLY this JSON object with no other text:
     setMsg2('✅ VIN + recalls + known complaints loaded. Review Values Hub.','okbox');
     console.warn('AI baseline lookup failed:', e.message);
   }
+}
+
+
+// ── PDF PASTE DETECTOR ─────────────────────────────────────────────────────────
+function detectPDFPaste(el){
+  const text = el.value;
+  const isPDF = text.startsWith('%PDF') || text.includes('\x00') || /^[\x00-\x08\x0b\x0c\x0e-\x1f]{3}/.test(text);
+  const warn = $('pdfPasteWarning');
+  if(warn) warn.style.display = isPDF ? '' : 'none';
+  if(isPDF) el.value = ''; // clear the binary garbage
+}
+function hidePDFWarning(){
+  const warn=$('pdfPasteWarning'); if(warn) warn.style.display='none';
 }
 
 
