@@ -666,8 +666,10 @@ async function decodeAll(){
     await pullRecalls();
     setStatus('✓ Recalls loaded — pulling complaint patterns…');
     await pullComplaints();
-    setStatus('✓ VIN + recalls + known complaints loaded. Review Values Hub.','okbox');
+    setStatus('✓ VIN + complaints loaded — pulling AI baselines…','okbox');
     updateReadiness();
+    // Auto-fire AI baseline lookup after VIN pull — no button needed
+    autoBaselineLookup();
   }catch(e){
     showVinManualFallback(e.message);
     updateReadiness();
@@ -778,7 +780,7 @@ async function runOCR(dataUrl){
   try{
     const response=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:1000,
@@ -840,7 +842,9 @@ Rules:
 
     if(!response.ok){
       const err=await response.text();
-      throw new Error(`API ${response.status}: ${err.slice(0,200)}`);
+      let errMsg=`API ${response.status}`;
+      try{const p=JSON.parse(err);errMsg=p.error?.message||errMsg;}catch(e){}
+      throw new Error(errMsg);
     }
 
     const data=await response.json();
@@ -1535,7 +1539,7 @@ async function startQRCaptureFallback(){
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
+        headers: {'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 500,
@@ -1679,7 +1683,7 @@ async function streamClaude(systemPrompt, userMsg, outputElId, thinkingElId, act
   try{
     const response=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:1200,
@@ -1691,7 +1695,10 @@ async function streamClaude(systemPrompt, userMsg, outputElId, thinkingElId, act
 
     if(!response.ok){
       const err=await response.text();
-      throw new Error('API '+response.status+': '+err.slice(0,120));
+      let errMsg='API error '+response.status;
+      try{const p=JSON.parse(err);errMsg=p.error?.message||errMsg;}catch(e){}
+      if(response.status===403||response.status===401)errMsg='AI access denied. The API is unavailable from browser. Use the Dashboard Analyze button instead.';
+      throw new Error(errMsg);
     }
 
     if(thinkEl)thinkEl.style.display='none';
@@ -1908,6 +1915,136 @@ function copyAIText(boxId){
   const el=$(id);
   if(el)el.addEventListener('input',()=>setTimeout(refreshDTCChips,300));
 });
+
+// ── AUTO AI BASELINE LOOKUP ────────────────────────────────────────────────────
+// Fires automatically after VIN pull. Asks Claude for vehicle-specific
+// baseline specs — fuel pressure, MAF, O2 type, common failures, idle RPM.
+// Fills the OEM baseline fields and displays a status note.
+async function autoBaselineLookup(){
+  const year=val('year'), make=val('make'), model=val('model'), engine=val('engine');
+  const cylinders=val('cylinders'), displacement=val('displacement'), fuelType=val('fuelType');
+  if(!year||!make||!model) return; // nothing to look up
+
+  const statusEl=$('status');
+  const vinStatusEl=$('vinPullStatus');
+  const setMsg=(msg,cls='okbox')=>{
+    if(statusEl){statusEl.textContent=msg;statusEl.className=cls;}
+    if(vinStatusEl){vinStatusEl.textContent=msg;vinStatusEl.className=cls;}
+  };
+
+  setMsg('🤖 AI looking up baselines for '+year+' '+make+' '+model+'…');
+
+  try{
+    const response = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:800,
+        system:`You are an ASE Master Technician with deep knowledge of OEM vehicle specifications. 
+Return ONLY a JSON object with baseline diagnostic specs. No other text, no markdown, no explanation.
+If you are not confident in a specific value, use null.`,
+        messages:[{
+          role:'user',
+          content:`Provide typical baseline diagnostic specs for this vehicle:
+Year: ${year}
+Make: ${make}  
+Model: ${model}
+Engine: ${engine||'unknown'}
+Cylinders: ${cylinders||'unknown'}
+Displacement: ${displacement||'unknown'}L
+Fuel Type: ${fuelType||'Gasoline'}
+
+Return ONLY this JSON object with no other text:
+{
+  "fuelPressureMin": <number in PSI, typical minimum for this engine, null if unknown>,
+  "fuelPressureMax": <number in PSI, typical maximum for this engine, null if unknown>,
+  "mafIdleMin": <number in g/s at warm idle, null if unknown>,
+  "mafIdleMax": <number in g/s at warm idle, null if unknown>,
+  "mapIdleMin": <number in kPa at warm idle, null if unknown>,
+  "mapIdleMax": <number in kPa at warm idle, null if unknown>,
+  "ectWarmMin": <number in F, normal operating temp minimum, null if unknown>,
+  "ectWarmMax": <number in F, normal operating temp maximum, null if unknown>,
+  "idleRpmMin": <number, normal warm idle RPM minimum, null if unknown>,
+  "idleRpmMax": <number, normal warm idle RPM maximum, null if unknown>,
+  "o2Type": <"Narrowband O2" or "Wideband / Air-Fuel Ratio" or null>,
+  "batteryKoeoMin": <number in V, typical KOEO minimum, null if unknown>,
+  "chargingMin": <number in V, typical charging minimum, null if unknown>,
+  "chargingMax": <number in V, typical charging maximum, null if unknown>,
+  "commonFailures": <string, top 3 known failure patterns for this specific vehicle in plain English, null if unknown>,
+  "notes": <string, any important diagnostic notes specific to this vehicle, null if unknown>
+}`
+        }]
+      })
+    });
+
+    if(!response.ok) throw new Error('API '+response.status);
+
+    const data = await response.json();
+    const raw = data.content?.find(c=>c.type==='text')?.text||'{}';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const specs = JSON.parse(clean);
+
+    // Apply to spec fields — only fill if not already manually entered
+    const setSpec=(id,val)=>{if(val!==null&&val!==undefined&&$(id)&&!$(id).value) set(id,val);};
+    const setSpecAlways=(id,val)=>{if(val!==null&&val!==undefined&&$(id)) set(id,val);};
+
+    setSpec('specFuelLow', specs.fuelPressureMin);
+    setSpec('specFuelHigh', specs.fuelPressureMax);
+    setSpec('specMafLow',   specs.mafIdleMin);
+    setSpec('specMafHigh',  specs.mafIdleMax);
+    setSpec('specMapLow',   specs.mapIdleMin);
+    setSpec('specMapHigh',  specs.mapIdleMax);
+    setSpec('specEctLow',   specs.ectWarmMin);
+    setSpec('specEctHigh',  specs.ectWarmMax);
+    setSpec('specBatteryLow', specs.batteryKoeoMin);
+    setSpec('specChargeLow',  specs.chargingMin);
+    setSpec('specChargeHigh', specs.chargingMax);
+    if(specs.o2Type) setSpecAlways('o2Type', specs.o2Type);
+
+    // Build a summary note for the baseline section
+    let baselineNote = `AI Baselines for ${year} ${make} ${model}:\n`;
+    if(specs.fuelPressureMin) baselineNote += `Fuel Pressure: ${specs.fuelPressureMin}–${specs.fuelPressureMax} PSI\n`;
+    if(specs.mafIdleMin)      baselineNote += `MAF Idle: ${specs.mafIdleMin}–${specs.mafIdleMax} g/s\n`;
+    if(specs.mapIdleMin)      baselineNote += `MAP Idle: ${specs.mapIdleMin}–${specs.mapIdleMax} kPa\n`;
+    if(specs.idleRpmMin)      baselineNote += `Idle RPM: ${specs.idleRpmMin}–${specs.idleRpmMax}\n`;
+    if(specs.o2Type)          baselineNote += `O2 Type: ${specs.o2Type}\n`;
+    if(specs.commonFailures)  baselineNote += `\nKnown Failures: ${specs.commonFailures}`;
+    if(specs.notes)           baselineNote += `\nNotes: ${specs.notes}`;
+
+    // Append to known problems field so tech can see it
+    const existing = val('knownProblems');
+    const aiSection = '\n\n--- AI BASELINE SPECS ---\n' + baselineNote;
+    if(!existing.includes('AI BASELINE SPECS')){
+      set('knownProblems', existing + aiSection);
+    }
+
+    // Update the baseline table
+    estimateBaselines();
+    updateReadiness();
+
+    // Update status with summary
+    const fuelStr = specs.fuelPressureMin ? `Fuel: ${specs.fuelPressureMin}–${specs.fuelPressureMax}psi` : '';
+    const mafStr  = specs.mafIdleMin      ? `MAF: ${specs.mafIdleMin}–${specs.mafIdleMax}g/s` : '';
+    const summary = [fuelStr,mafStr].filter(Boolean).join(' • ');
+    setMsg(`✅ AI baselines loaded${summary?' — '+summary:''}. Review Values Hub for full specs.`,'okbox');
+
+    // Store for reference
+    window._lastBaselines = specs;
+
+  }catch(e){
+    // Fail silently — baseline lookup is a bonus, not critical
+    const setMsg2=(msg,cls='okbox')=>{
+      if(statusEl){statusEl.textContent=msg;statusEl.className=cls;}
+    };
+    setMsg2('✅ VIN + recalls + known complaints loaded. Review Values Hub.','okbox');
+    console.warn('AI baseline lookup failed:', e.message);
+  }
+}
+
 
 // ── INIT ───────────────────────────────────────────────────────────────────────
 qsa('input,select,textarea').forEach(e=>e.addEventListener('input',updateReadiness));
