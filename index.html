@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AutoMedic Diagnostics | Mobile Vehicle Diagnostics | Northwest Florida</title>
+<meta name="description" content="Professional mobile vehicle diagnostics serving Okaloosa, Walton, Santa Rosa, and Escambia counties. We give answers, not just codes. Call 850-368-2285.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #ff173d;
+  --dark: #060810;
+  --darker: #030508;
+  --panel: rgba(10,14,28,.92);
+  --line: rgba(255,255,255,.1);
+  --text: #f0f4ff;
+  --muted: #8899bb;
+  --green: #00e87a;
+  --blue: #29b6f6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--dark);color:var(--text);font-family:'Barlow',sans-serif;overflow-x:hidden}
+
+/* ── GRID BACKGROUND ── */
+body::before{content:"";position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(255,23,61,.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(41,182,246,.12) 0%, transparent 55%),
+    linear-gradient(180deg, #060810 0%, #030508 100%);
+}
+body::after{content:"";position:fixed;inset:0;z-index:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size:48px 48px;
+  mask-image:linear-gradient(180deg,rgba(0,0,0,.6) 0%,rgba(0,0,0,.1) 100%);
+}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 5%;height:68px;
+  background:rgba(6,8,16,.85);
+  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(20px);
+}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-logo-icon{width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(135deg,#ff173d,#7a0010);
+  display:grid;place-items:center;font-size:20px;
+  box-shadow:0 0 0 1px rgba(255,23,61,.4),0 0 20px rgba(255,23,61,.25);}
+.nav-brand{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;letter-spacing:.5px;color:var(--text)}
+.nav-brand span{color:var(--red)}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{background:linear-gradient(135deg,var(--red),#9a0020);color:#fff;
+  padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;
+  text-decoration:none;border:none;cursor:pointer;
+  box-shadow:0 4px 0 rgba(120,0,20,.8);
+  transition:transform .15s,box-shadow .15s}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 0 rgba(120,0,20,.8)}
+.nav-cta:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(120,0,20,.8)}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:1;min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:120px 5% 80px;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,23,61,.12);border:1px solid rgba(255,23,61,.3);
+  border-radius:999px;padding:6px 16px;margin-bottom:28px;
+  font-size:12px;font-weight:700;letter-spacing:2px;color:var(--red);text-transform:uppercase}
+.hero-eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(52px,10vw,110px);line-height:.92;letter-spacing:-1px;
+  margin-bottom:24px;text-transform:uppercase}
+h1 .line1{display:block;color:var(--text)}
+h1 .line2{display:block;color:var(--red);
+  -webkit-text-stroke:2px var(--red);
+  text-shadow:0 0 60px rgba(255,23,61,.4)}
+h1 .line3{display:block;color:transparent;
+  -webkit-text-stroke:1px rgba(255,255,255,.25)}
+.hero-sub{font-size:clamp(16px,2.5vw,20px);color:var(--muted);max-width:560px;
+  line-height:1.6;margin-bottom:40px;font-weight:400}
+.hero-sub strong{color:var(--text);font-weight:600}
+.hero-btns{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:60px}
+.btn-primary{background:linear-gradient(135deg,var(--red),#8b0018);color:#fff;
+  padding:16px 32px;border-radius:12px;font-weight:700;font-size:17px;
+  text-decoration:none;box-shadow:0 6px 0 rgba(100,0,15,.9),0 0 40px rgba(255,23,61,.2);
+  transition:transform .15s,box-shadow .15s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 0 rgba(100,0,15,.9),0 0 60px rgba(255,23,61,.3)}
+.btn-secondary{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);
+  color:var(--text);padding:16px 32px;border-radius:12px;
+  font-weight:700;font-size:17px;text-decoration:none;
+  transition:background .2s,border-color .2s}
+.btn-secondary:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3)}
+.hero-stats{display:flex;gap:40px;flex-wrap:wrap;justify-content:center}
+.stat{text-align:center}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:36px;color:var(--text)}
+.stat-num span{color:var(--red)}
+.stat-label{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+
+/* ── DIVIDER ── */
+.divider{position:relative;z-index:1;height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:0 5%}
+
+/* ── SECTIONS ── */
+section{position:relative;z-index:1;padding:80px 5%}
+.section-label{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--red);margin-bottom:14px}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(32px,5vw,52px);text-transform:uppercase;line-height:1;margin-bottom:16px}
+.section-sub{color:var(--muted);font-size:16px;line-height:1.6;max-width:560px}
+
+/* ── SERVICES ── */
+.services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:48px}
+.service-card{background:linear-gradient(135deg,rgba(12,18,36,.9),rgba(6,10,20,.95));
+  border:1px solid var(--line);border-radius:18px;padding:28px;
+  transition:border-color .25s,transform .25s,box-shadow .25s;position:relative;overflow:hidden}
+.service-card::before{content:"";position:absolute;inset:0;border-radius:18px;
+  background:linear-gradient(135deg,rgba(255,23,61,.08),transparent);opacity:0;transition:opacity .25s}
+.service-card:hover{border-color:rgba(255,23,61,.4);transform:translateY(-4px);
+  box-shadow:0 20px 60px rgba(0,0,0,.4),0 0 0 1px rgba(255,23,61,.2)}
+.service-card:hover::before{opacity:1}
+.service-icon{font-size:32px;margin-bottom:16px}
+.service-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;
+  text-transform:uppercase;margin-bottom:8px}
+.service-desc{color:var(--muted);font-size:14px;line-height:1.6}
+.service-price{display:inline-block;margin-top:14px;
+  background:rgba(255,23,61,.12);border:1px solid rgba(255,23,61,.25);
+  color:var(--red);border-radius:999px;padding:4px 14px;font-size:13px;font-weight:700}
+
+/* ── HOW IT WORKS ── */
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;margin-top:48px}
+.how-step{padding:28px;position:relative}
+.how-step:not(:last-child)::after{content:"→";position:absolute;right:-10px;top:50%;transform:translateY(-50%);
+  font-size:24px;color:rgba(255,255,255,.15)}
+.step-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:64px;
+  line-height:1;color:rgba(255,23,61,.15);margin-bottom:8px}
+.step-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;
+  text-transform:uppercase;margin-bottom:8px}
+.step-desc{color:var(--muted);font-size:14px;line-height:1.6}
+
+/* ── SERVICE AREA ── */
+.area-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:32px}
+.area-card{background:rgba(255,255,255,.04);border:1px solid var(--line);
+  border-radius:14px;padding:20px;display:flex;align-items:center;gap:14px}
+.area-icon{font-size:24px}
+.area-name{font-weight:700;font-size:16px}
+.area-detail{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* ── PRICING ── */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:48px}
+.price-card{background:linear-gradient(180deg,rgba(12,18,36,.9),rgba(6,10,20,.95));
+  border:1px solid var(--line);border-radius:18px;padding:28px;position:relative}
+.price-card.featured{border-color:rgba(255,23,61,.5);
+  box-shadow:0 0 0 1px rgba(255,23,61,.2),0 20px 60px rgba(255,23,61,.1)}
+.price-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--red),#8b0018);
+  color:#fff;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:4px 16px;border-radius:999px}
+.price-tier{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:14px;
+  letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.price-amount{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:52px;line-height:1}
+.price-amount sup{font-size:24px;vertical-align:top;margin-top:8px}
+.price-name{font-weight:700;font-size:16px;margin:12px 0 8px}
+.price-features{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.price-features li{font-size:14px;color:var(--muted);display:flex;align-items:flex-start;gap:8px}
+.price-features li::before{content:"✓";color:var(--green);font-weight:700;flex-shrink:0}
+
+/* ── CTA BAND ── */
+.cta-band{position:relative;z-index:1;
+  background:linear-gradient(135deg,rgba(255,23,61,.15),rgba(255,23,61,.05));
+  border-top:1px solid rgba(255,23,61,.2);border-bottom:1px solid rgba(255,23,61,.2);
+  padding:60px 5%;text-align:center}
+.cta-band h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(32px,6vw,64px);text-transform:uppercase;margin-bottom:16px}
+.cta-band p{color:var(--muted);font-size:18px;margin-bottom:32px}
+.phone-big{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(36px,7vw,72px);color:var(--green);letter-spacing:-1px;
+  text-decoration:none;display:block;margin-bottom:32px;
+  text-shadow:0 0 40px rgba(0,232,122,.3)}
+.phone-big:hover{text-shadow:0 0 60px rgba(0,232,122,.5)}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:1;
+  background:rgba(3,5,8,.8);border-top:1px solid var(--line);
+  padding:40px 5%;display:flex;flex-wrap:wrap;gap:24px;
+  align-items:center;justify-content:space-between}
+.footer-brand{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px}
+.footer-brand span{color:var(--red)}
+.footer-links{display:flex;gap:24px;flex-wrap:wrap}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:14px;transition:color .2s}
+.footer-links a:hover{color:var(--text)}
+.footer-copy{color:var(--muted);font-size:13px;width:100%}
+
+/* ── ANIMATIONS ── */
+.fade-up{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .nav-links{display:none}
+  .how-step:not(:last-child)::after{display:none}
+  .hero{padding:100px 5% 60px}
+  .hero-stats{gap:24px}
+  footer{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">🔧</div>
+    <div class="nav-brand">Auto<span>Medic</span> Diagnostics</div>
+  </a>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#how">How It Works</a>
+    
+    <a href="#area">Service Area</a>
+    <a href="app.html">Diagnostic App</a>
+  </div>
+  <a href="tel:8503682285" class="nav-cta">Call 850-368-2285</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span></span> Mobile Diagnostics — Northwest Florida
+  </div>
+  <h1>
+    <span class="line1">We Give</span>
+    <span class="line2">Answers,</span>
+    <span class="line3">Not Codes.</span>
+  </h1>
+  <p class="hero-sub">
+    Professional mobile vehicle diagnostics that come to <strong>you</strong>.
+    No shop visit. No guessing. We pinpoint the problem — you get the fix.
+  </p>
+  <div class="hero-btns">
+    <a href="tel:8503682285" class="btn-primary">📞 Call to Book — 850-368-2285</a>
+    <a href="app.html" class="btn-secondary">Open Diagnostic App →</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">4<span>+</span></div>
+      <div class="stat-label">Counties Served</div>
+    </div>
+    <div class="stat">
+
+    </div>
+    <div class="stat">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Repairs Upsold</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">1<span>hr</span></div>
+      <div class="stat-label">Typical Session</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-label">What We Do</div>
+  <h2 class="section-title">Diagnostic Services</h2>
+  <p class="section-sub">Diagnostics only — no repairs, no upsells, no conflict of interest. Just the truth about your vehicle.</p>
+  <div class="services-grid">
+    <div class="service-card fade-up">
+      <div class="service-icon">🔍</div>
+      <div class="service-name">Check Engine Diagnostic</div>
+      <div class="service-desc">Full DTC read, live data analysis, freeze frame review, and pinpoint cause — not just a code printout.</div>
+      
+    </div>
+    <div class="service-card fade-up">
+      <div class="service-icon">🚗</div>
+      <div class="service-name">Pre-Purchase Inspection</div>
+      <div class="service-desc">Full system scan before you buy. Know exactly what you're getting into before signing anything.</div>
+      
+    </div>
+    <div class="service-card fade-up">
+      <div class="service-icon">🔋</div>
+      <div class="service-name">Battery / Charging / Ground</div>
+      <div class="service-desc">Voltage drop testing, charging system analysis, and ground circuit verification.</div>
+      
+    </div>
+    <div class="service-card fade-up">
+      <div class="service-icon">⚙️</div>
+      <div class="service-name">Full System Scan</div>
+      <div class="service-desc">All-module scan — every system in the vehicle checked. Fuel trims, O2, ABS, SRS, TPMS, TCM and more.</div>
+      
+    </div>
+    <div class="service-card fade-up">
+      <div class="service-icon">🚛</div>
+      <div class="service-name">Fleet Scanning</div>
+      <div class="service-desc">Multi-vehicle diagnostic packages for fleets. We come to your lot. Travel surcharge waived for fleet clients.</div>
+      
+    </div>
+    <div class="service-card fade-up">
+      <div class="service-icon">🎖️</div>
+      <div class="service-name">Military Discount</div>
+      <div class="service-desc">Proud to serve Eglin AFB, Hurlburt Field, NAS Pensacola, and all military families in Northwest Florida.</div>
+      
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-label">The Process</div>
+  <h2 class="section-title">How It Works</h2>
+  <div class="how-grid">
+    <div class="how-step fade-up">
+      <div class="step-num">01</div>
+      <div class="step-title">You Call</div>
+      <div class="step-desc">Tell us your vehicle, symptom, and location. We'll schedule a time that works for you.</div>
+    </div>
+    <div class="how-step fade-up">
+      <div class="step-num">02</div>
+      <div class="step-title">We Come To You</div>
+      <div class="step-desc">Home, work, parking lot — wherever the vehicle is. No towing required.</div>
+    </div>
+    <div class="how-step fade-up">
+      <div class="step-num">03</div>
+      <div class="step-title">We Scan & Test</div>
+      <div class="step-desc">Full diagnostic session with professional bi-directional scanner. Live data, codes, circuit tests.</div>
+    </div>
+    <div class="how-step fade-up">
+      <div class="step-num">04</div>
+      <div class="step-title">You Get Answers</div>
+      <div class="step-desc">Written diagnostic report with the actual cause — not a list of codes to guess from.</div>
+    </div>
+  </div>
+</section>
+
+<!--
+  <div class="section-label">Transparent Pricing</div>
+  <h2 class="section-title">No Surprises</h2>
+  <p class="section-sub">Flat-rate diagnostic fees. You know the price before we show up.</p>
+  <div class="pricing-grid">
+    <div class="price-card fade-up">
+      <div class="price-tier">Basic</div>
+      <div class="price-amount"><sup>$</sup>99</div>
+      <div class="price-name">Standard Diagnostic</div>
+      <ul class="price-features">
+        <li>Check engine / warning light read</li>
+        <li>DTC analysis with explanation</li>
+        <li>Freeze frame data review</li>
+        <li>Basic live data check</li>
+        <li>Visual inspection — connectors, harness, vacuum lines</li>
+        <li>Written summary</li>
+      </ul>
+    </div>
+    <div class="price-card featured fade-up">
+      <div class="price-badge">Most Popular</div>
+      <div class="price-tier">Advanced</div>
+      <div class="price-amount"><sup>$</sup>169</div>
+      <div class="price-name">Advanced Diagnostic</div>
+      <ul class="price-features">
+        <li>Everything in Basic</li>
+        <li>Full fuel trim analysis</li>
+        <li>O2 sensor data review</li>
+        <li>Fuse power verification (both sides)</li>
+        <li>5V reference circuit check</li>
+        <li>Battery / charging system test</li>
+        <li>Ground voltage drop test</li>
+        <li>Detailed written report</li>
+      </ul>
+    </div>
+    <div class="price-card fade-up">
+      <div class="price-tier">Master</div>
+      <div class="price-amount"><sup>$</sup>279</div>
+      <div class="price-name">Full System Scan</div>
+      <ul class="price-features">
+        <li>Everything in Advanced</li>
+        <li>All-module scan</li>
+        <li>ABS, SRS, TPMS, TCM</li>
+        <li>HVAC and body systems</li>
+        <li>BMS reset / TPMS relearn</li>
+        <li>Complete vehicle health report</li>
+      </ul>
+    </div>
+  </div>
+-->
+
+
+<div class="divider"></div>
+
+<!-- SERVICE AREA -->
+<section id="area">
+  <div class="section-label">Where We Go</div>
+  <h2 class="section-title">Service Area</h2>
+  <p class="section-sub">We come to you across Northwest Florida's Emerald Coast corridor.</p>
+  <div class="area-grid">
+    <div class="area-card fade-up">
+      <div class="area-icon">📍</div>
+      <div>
+        <div class="area-name">Okaloosa County</div>
+        <div class="area-detail">Fort Walton Beach, Shalimar, Niceville, Destin, Crestview</div>
+      </div>
+    </div>
+    <div class="area-card fade-up">
+      <div class="area-icon">📍</div>
+      <div>
+        <div class="area-name">Walton County</div>
+        <div class="area-detail">DeFuniak Springs, Freeport, Miramar Beach, Santa Rosa Beach</div>
+      </div>
+    </div>
+    <div class="area-card fade-up">
+      <div class="area-icon">📍</div>
+      <div>
+        <div class="area-name">Santa Rosa County</div>
+        <div class="area-detail">Milton, Navarre, Gulf Breeze, Pace</div>
+      </div>
+    </div>
+    <div class="area-card fade-up">
+      <div class="area-icon">📍</div>
+      <div>
+        <div class="area-name">Escambia County</div>
+        <div class="area-detail">Pensacola, Pensacola Beach, Ferry Pass</div>
+      </div>
+    </div>
+  </div>
+  <p style="color:var(--muted);font-size:13px;margin-top:20px">
+    🎖️ Proudly serving military families at Eglin AFB, Hurlburt Field, NAS Pensacola, and Duke Field.
+  </p>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <h2>Ready to Get Answers?</h2>
+  <p>Call or text to schedule. Most appointments available same week.</p>
+  <a href="tel:8503682285" class="phone-big">850-368-2285</a>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+    <a href="tel:8503682285" class="btn-primary">📞 Call Now</a>
+    <a href="mailto:automedicdiagnostics@gmail.com" class="btn-secondary">✉️ Email Us</a>
+    <a href="https://fb.com/AutoMedicDiagnostics" target="_blank" class="btn-secondary">Facebook →</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">Auto<span>Medic</span> Diagnostics</div>
+  <div class="footer-links">
+    <a href="#services">Services</a>
+    
+    <a href="#area">Service Area</a>
+    <a href="app.html">Diagnostic App</a>
+    <a href="mailto:automedicdiagnostics@gmail.com">Email</a>
+    <a href="https://fb.com/AutoMedicDiagnostics" target="_blank">Facebook</a>
+  </div>
+  <div class="footer-copy">
+    © 2025 AutoMedic Diagnostics · Shalimar, FL · 850-368-2285 · automedicdiagnostics@gmail.com
+    · Serving Okaloosa, Walton, Santa Rosa &amp; Escambia counties
+  </div>
+</footer>
+
+<script>
+// Scroll animations
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:.15});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
