@@ -74,11 +74,12 @@ pre{white-space:pre-wrap;background:rgba(0,0,0,.45);border:1px solid var(--line)
 </head>
 <body>
 <div class="app">
-<header class="top"><div class="logo" id="logo"></div><div><h1>AutoMedic Diagnostics Pinpoint Pro V12</h1><div class="tag">We Give Answers, Not Codes.</div><div class="sub">Live data + fuel trim import • VIN full decode • vehicle tag storage • baseline/value hub • scanner upload • diagrams • history • <span class="phone">850-368-2285</span></div></div></header>
+<header class="top"><div class="logo" id="logo"></div><div><h1>AutoMedic Diagnostics Pinpoint Pro V12</h1><div class="tag">We Give Answers, Not Codes.</div><div class="sub">Live data + fuel trim import • VIN full decode • scanner upload • diagrams • history • <span class="phone">850-368-2285</span> • <a href="https://automedicdiagnostics.com" style="color:var(--green);font-weight:900;text-decoration:none" target="_blank" rel="noopener">automedicdiagnostics.com</a></div></div></header>
 <nav class="nav" id="nav">
   <button class="active" data-tab="dash">Dashboard</button>
   <button data-tab="import">IMPORT SCANNER DATA</button>
   <button data-tab="ocr">📷 PHOTO OCR</button>
+  <button data-tab="ai">🤖 AI ASSIST</button>
   <button data-tab="values">VALUES HUB</button>
   <button data-tab="liveimport">Live Data Import</button>
   <button data-tab="scanner">Scanner Upload</button>
@@ -422,6 +423,91 @@ pre{white-space:pre-wrap;background:rgba(0,0,0,.45);border:1px solid var(--line)
 <section id="tests" class="tab"><div class="grid"><div class="card"><h2><span class="badge">T</span> Guided Verification Steps</h2><div id="guidedSummary" class="okbox">Analyze first to generate steps.</div><div id="guidedSteps"></div></div><div class="card"><h2>Final Tech Notes</h2><label>Tech Notes</label><textarea id="testNotes"></textarea><label>Scope Notes</label><textarea id="scopeNotes">Diagnostic only. No under-car work. No wrench-turning repairs.</textarea><label>Photo/Video Notes</label><textarea id="mediaNotes"></textarea></div></div></section>
 
 <section id="history" class="tab"><div class="grid"><div class="card"><h2><span class="badge">H</span> Saved Job History</h2><div class="btns"><button class="btn green" onclick="saveJob()">Save Current Job</button><button class="btn ghost" onclick="exportHistory()">Export History</button><button class="btn ghost" onclick="importHistoryPrompt()">Import History</button><button class="btn" onclick="clearHistory()">Clear All</button></div><div id="historyList" style="margin-top:10px"></div></div><div class="card"><h2>Customer / Job Info</h2><label>Customer Name</label><input id="customerName"><label>Phone / Email</label><input id="customerContact"><label>Job Date</label><input id="jobDate"><label>Invoice / Work Order #</label><input id="workOrder"></div></div></section>
+<!-- ═══ AI ASSIST TAB ═══ -->
+<section id="ai" class="tab">
+<style>
+.ai-card{background:linear-gradient(135deg,rgba(51,199,255,.07),rgba(10,14,24,.97));border:2px solid rgba(51,199,255,.3);border-radius:22px;padding:16px}
+.ai-stream{background:#060a14;border:1px solid rgba(51,199,255,.2);border-radius:16px;padding:16px;min-height:130px;font-size:14px;line-height:1.75;color:#e2e8f0;white-space:pre-wrap;font-family:Inter,Arial,sans-serif}
+.ai-cursor{display:inline-block;width:2px;height:15px;background:#33c7ff;animation:blink .7s infinite;vertical-align:middle;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.ai-thinking{color:#33c7ff;font-size:13px;font-weight:900;display:flex;align-items:center;gap:8px;padding:10px 0}
+.ai-spin{animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dtc-chip{background:rgba(255,23,61,.15);border:1px solid rgba(255,23,61,.4);color:#fecdd3;border-radius:999px;padding:8px 16px;font-size:13px;font-weight:900;cursor:pointer;transition:all .2s;display:inline-block;margin:4px}
+.dtc-chip:hover{background:rgba(255,23,61,.4);transform:translateY(-2px)}
+.ai-report-box{background:#060a14;border:1px solid rgba(24,240,139,.25);border-radius:16px;padding:16px;font-size:13px;line-height:1.75;color:#e2e8f0;white-space:pre-wrap;min-height:160px}
+</style>
+<div style="display:flex;flex-direction:column;gap:14px">
+
+<!-- FEATURE 1: STREAMING AI DIAGNOSIS -->
+<div class="card ai-card">
+  <h2><span class="badge" style="background:#33c7ff;color:#000">🤖</span> AI Streaming Diagnosis</h2>
+  <p class="hint" style="margin-bottom:12px">Sends all your entered data to Claude for a live plain-English diagnosis — streams word by word. Fill dashboard values first for best results.</p>
+  <div class="btns" style="margin-bottom:12px">
+    <button class="btn green" onclick="runAIDiagnosis('standard')" style="flex:1;font-size:14px">⚡ Run AI Diagnosis</button>
+    <button class="btn blue" onclick="runAIDiagnosis('deep')" style="font-size:13px;padding:10px 16px">🔬 Deep Analysis</button>
+    <button class="btn ghost" onclick="clearAIBox('aiDiagBox','aiDiagThinking','aiDiagActions')" style="font-size:12px;padding:10px 14px">Clear</button>
+  </div>
+  <div id="aiDiagThinking" style="display:none" class="ai-thinking"><span class="ai-spin">⚙️</span> Claude is analyzing your diagnostic data…</div>
+  <div id="aiDiagBox" class="ai-stream" style="display:none"></div>
+  <div id="aiDiagActions" style="display:none;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn ghost" onclick="copyAIText('aiDiagBox')" style="font-size:12px;padding:9px 14px">📋 Copy</button>
+    <button class="btn ghost" onclick="sendAIDiagToReport()" style="font-size:12px;padding:9px 14px">📄 Send to Report</button>
+  </div>
+</div>
+
+<!-- FEATURE 2: DTC DEEP DIVE -->
+<div class="card" style="border:2px solid rgba(255,23,61,.3);background:linear-gradient(135deg,rgba(255,23,61,.06),rgba(10,14,24,.97))">
+  <h2><span class="badge">🔍</span> DTC Deep Dive</h2>
+  <p class="hint" style="margin-bottom:10px">Tap any code for a full AI breakdown — what system, what it means on your specific vehicle, ranked causes, and what data to capture next.</p>
+  <div id="dtcChipRow" style="margin-bottom:10px;min-height:36px">
+    <span id="dtcNoCodesMsg" style="font-size:12px;color:var(--muted)">Enter DTCs in Values Hub — they appear here as tappable chips.</span>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+    <input id="dtcManualInput" placeholder="Type a code: P0171" style="flex:1;min-width:140px;height:44px;font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:2px" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,5)" maxlength="5">
+    <button class="btn" onclick="runDTCDeepDive($('dtcManualInput').value)" style="font-size:13px;padding:10px 18px">Look Up</button>
+  </div>
+  <div id="dtcThinking" style="display:none" class="ai-thinking"><span class="ai-spin">🔍</span> Claude researching this code…</div>
+  <div id="dtcBox" class="ai-stream" style="display:none"></div>
+  <div id="dtcActions" style="display:none;margin-top:10px">
+    <button class="btn ghost" onclick="copyAIText('dtcBox')" style="font-size:12px;padding:9px 14px">📋 Copy DTC Breakdown</button>
+  </div>
+</div>
+
+<!-- FEATURE 3: AI CUSTOMER REPORT WRITER -->
+<div class="card" style="border:2px solid rgba(24,240,139,.3);background:linear-gradient(135deg,rgba(24,240,139,.06),rgba(10,14,24,.97))">
+  <h2><span class="badge" style="background:#18f08b;color:#000">📄</span> AI Customer Report Writer</h2>
+  <p class="hint" style="margin-bottom:12px">Claude writes a professional, plain-English customer report from all your diagnostic data. No jargon — just what's wrong, why, and what the customer needs to do next.</p>
+  <div class="btns" style="margin-bottom:12px">
+    <button class="btn green" onclick="runAIReport()" style="flex:1;font-size:14px">📄 Write Customer Report</button>
+    <button class="btn ghost" onclick="clearAIBox('aiReportBox','aiReportThinking','aiReportActions')" style="font-size:12px;padding:10px 14px">Clear</button>
+  </div>
+  <div id="aiReportThinking" style="display:none" class="ai-thinking"><span class="ai-spin">✍️</span> Claude writing your customer report…</div>
+  <div id="aiReportBox" class="ai-report-box" style="display:none"></div>
+  <div id="aiReportActions" style="display:none;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn green" onclick="copyAIText('aiReportBox')" style="font-size:13px;padding:10px 16px">📋 Copy Report</button>
+    <button class="btn blue" onclick="downloadAIReport()" style="font-size:12px;padding:10px 14px">⬇️ Download TXT</button>
+  </div>
+</div>
+
+<!-- QUICK FUEL TRIM AI INTERPRETER -->
+<div class="card" style="border:1px solid rgba(255,208,90,.25);background:linear-gradient(135deg,rgba(255,208,90,.05),rgba(10,14,24,.97))">
+  <h2><span class="badge" style="background:#ffd05a;color:#000">⛽</span> Fuel Trim AI Interpreter</h2>
+  <p class="hint" style="margin-bottom:10px">Paste your STFT/LTFT numbers at idle, 2500 RPM, and load — Claude reads the pattern and tells you exactly what it points to.</p>
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <button class="btn" onclick="runFuelTrimAI()" style="flex:1;font-size:14px;background:linear-gradient(135deg,#ffd05a,#b07d00);color:#000">⚡ Interpret My Fuel Trims</button>
+    <button class="btn ghost" onclick="clearAIBox('ftAIBox','ftAIThinking','ftAIActions')" style="font-size:12px;padding:10px 14px">Clear</button>
+  </div>
+  <div id="ftAIThinking" style="display:none" class="ai-thinking"><span class="ai-spin">⛽</span> Claude analyzing fuel trim pattern…</div>
+  <div id="ftAIBox" class="ai-stream" style="display:none"></div>
+  <div id="ftAIActions" style="display:none;margin-top:8px">
+    <button class="btn ghost" onclick="copyAIText('ftAIBox')" style="font-size:12px;padding:9px 14px">📋 Copy</button>
+  </div>
+</div>
+
+</div>
+</section>
+
 <section id="report" class="tab"><div class="card"><h2><span class="badge">R</span> Customer Report</h2><div class="btns"><button class="btn green" onclick="analyzeAll(true);copyReport()">Analyze + Copy Report</button><button class="btn blue" onclick="downloadReport()">Download TXT Report</button></div><pre id="reportBox">Report will appear after analysis.</pre></div></section>
 
 </div><!-- .app -->
@@ -509,6 +595,8 @@ async function fetchWithFallback(url,label,supportsJSONP=false){
     u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
     u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}`,
     u=>`https://cors-proxy.fringe.zone/${u}`,
+    u=>`https://thingproxy.freeboard.io/fetch/${u}`,
+    u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
   ];
   const errors=[];
   if(supportsJSONP){
@@ -1294,8 +1382,14 @@ async function startQRScan(){
     qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
     const video=$('qrVideo');video.srcObject=qrStream;await video.play();
     qrSetStatus('Camera ready — point at the QR code on the scanner screen.');
-    if('BarcodeDetector' in window){qrDetector=new BarcodeDetector({formats:['qr_code']});qrScanLoop();}
-    else{qrSetStatus('Loading QR library…');const script=document.createElement('script');script.src='https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';script.onload=()=>{qrSetStatus('Camera ready — point at QR code.');qrScanLoopJSQR()};script.onerror=()=>qrSetStatus('QR library failed to load.','bad');document.head.appendChild(script)}
+    if('BarcodeDetector' in window){
+      qrDetector=new BarcodeDetector({formats:['qr_code']});
+      qrScanLoop();
+    } else {
+      // BarcodeDetector not available — load jsQR with multi-CDN fallback
+      qrSetStatus('Loading QR decoder…');
+      loadJsQR();
+    }
   }catch(e){qrSetStatus('Camera access denied: '+e.message+'. Check browser permissions.','bad');stopQRScan()}
 }
 
@@ -1311,10 +1405,30 @@ function qrScanLoopJSQR(){
   const video=$('qrVideo');if(!video||!qrStream)return;
   qrAnimFrame=requestAnimationFrame(()=>{
     if(video.readyState===video.HAVE_ENOUGH_DATA){
-      const canvas=document.createElement('canvas');canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+      const canvas=document.createElement('canvas');
+      canvas.width=video.videoWidth||640;canvas.height=video.videoHeight||480;
       const ctx=canvas.getContext('2d');ctx.drawImage(video,0,0,canvas.width,canvas.height);
-      const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
-      if(typeof jsQR!=='undefined'){const code=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:'dontInvert'});if(code){handleQRResult(code.data);return}}
+
+      try{
+        // Try ZXing first (better iOS Safari, better QR detection)
+        if(typeof ZXing!=='undefined'){
+          const hints=new Map();
+          const formats=[ZXing.BarcodeFormat.QR_CODE];
+          hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,formats);
+          const reader=new ZXing.MultiFormatReader();
+          reader.setHints(hints);
+          const lum=new ZXing.HTMLCanvasElementLuminanceSource(canvas);
+          const bmp=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(lum));
+          const result=reader.decode(bmp);
+          if(result){handleQRResult(result.getText());return;}
+        }
+        // jsQR fallback
+        if(typeof jsQR!=='undefined'){
+          const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+          const code=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:'attemptBoth'});
+          if(code){handleQRResult(code.data);return;}
+        }
+      }catch(e){}
     }
     qrScanLoopJSQR();
   });
@@ -1343,15 +1457,457 @@ async function handleQRResult(raw){
   }
 }
 
+// ── JSQR MULTI-CDN LOADER ─────────────────────────────────────────────────────
+// Tries 4 CDNs in order. If all fail, falls back to Claude Vision OCR as QR decoder.
+function loadJsQR(){
+  const cdns = [
+    // ZXing — best iOS Safari support, recommended from field testing
+    'https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1/umd/index.min.js',
+    'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js',
+    // jsQR fallbacks
+    'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js',
+    'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'
+  ];
+  let idx = 0;
+  function tryNext(){
+    if(idx >= cdns.length){
+      // All CDNs failed — use Claude Vision as fallback QR decoder
+      qrSetStatus('QR decoder unavailable. Using camera capture → AI fallback.','warn');
+      startQRCaptureFallback();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = cdns[idx++];
+    script.onload = () => {
+      if(typeof ZXing !== 'undefined' || typeof jsQR !== 'undefined'){
+        qrSetStatus('Camera ready — hold scanner QR steady in the frame.');
+        qrScanLoopJSQR();
+      } else {
+        tryNext();
+      }
+    };
+    script.onerror = () => tryNext();
+    document.head.appendChild(script);
+  }
+  tryNext();
+}
+
+// ── CAMERA CAPTURE FALLBACK (when jsQR fails, use Claude Vision to read QR) ──
+// Takes a snapshot from the camera stream and sends it to Claude Vision
+// to extract the QR content — works even when jsQR library won't load.
+async function startQRCaptureFallback(){
+  const video = $('qrVideo');
+  if(!video || !qrStream){
+    qrSetStatus('Camera not active. Tap Scan QR again.','bad');
+    return;
+  }
+  qrSetStatus('📸 Tap the button to capture the QR code from the camera…');
+
+  // Show capture button
+  const captureBtn = document.createElement('button');
+  captureBtn.className = 'btn green';
+  captureBtn.style.cssText = 'width:100%;margin-top:10px;font-size:16px;padding:14px';
+  captureBtn.textContent = '📸 Capture QR Code Now';
+  captureBtn.id = 'qrCaptureBtn';
+
+  const qrBox = $('qrCameraBox');
+  if(qrBox && !$('qrCaptureBtn')) qrBox.appendChild(captureBtn);
+
+  captureBtn.onclick = async () => {
+    captureBtn.textContent = '🤖 AI reading QR…';
+    captureBtn.disabled = true;
+
+    // Capture frame from video
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL('image/jpeg', 0.9);
+    const base64 = imageData.split(',')[1];
+
+    stopQRScan();
+    captureBtn.remove();
+
+    qrSetStatus('🤖 Claude Vision reading QR code…');
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 500,
+          messages: [{
+            role: 'user',
+            content: [
+              {type:'image', source:{type:'base64', media_type:'image/jpeg', data:base64}},
+              {type:'text', text:'This is a camera frame showing a QR code on an Autel scanner screen. Read the QR code and return ONLY the exact text or URL encoded in it, nothing else. If you cannot read it clearly, say UNREADABLE.'}
+            ]
+          }]
+        })
+      });
+
+      if(!response.ok) throw new Error('API '+response.status);
+      const data = await response.json();
+      const qrText = (data.content?.find(c=>c.type==='text')?.text||'').trim();
+
+      if(!qrText || qrText === 'UNREADABLE' || qrText.length < 3){
+        qrSetStatus('QR could not be read. Try: better lighting, hold camera steady, fill frame with QR.','bad');
+        return;
+      }
+
+      qrSetStatus('QR decoded by AI: '+qrText.slice(0,60)+'…');
+      await handleQRResult(qrText);
+
+    } catch(e) {
+      qrSetStatus('AI QR read failed: '+e.message+'. Use the paste method instead.','bad');
+    }
+  };
+}
+
 function stopQRScan(){
   if(qrAnimFrame){cancelAnimationFrame(qrAnimFrame);qrAnimFrame=null}
   if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null}
   const video=$('qrVideo');if(video)video.srcObject=null;
+  // Clean up capture fallback button if present
+  const captureBtn=$('qrCaptureBtn');if(captureBtn)captureBtn.remove();
   qrShow('qrCameraBox',false);qrShow('qrStopBtn',false);
 }
 
 // ── FIELD SYNC ─────────────────────────────────────────────────────────────────
 function syncField(id,value){const el=$(id);if(el)el.value=value;updateReadiness()}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AI ASSIST ENGINE
+// ══════════════════════════════════════════════════════════════════════════════
+
+function buildDiagContext(){
+  return {
+    vehicle:[val('year'),val('make'),val('model'),val('engine')].filter(Boolean).join(' ')||'Unknown vehicle',
+    vin:val('vin'), mileage:val('mileage'),
+    symptom:val('symptom')||val('symptomDash'),
+    complaint:val('complaint')||val('complaintDash'),
+    dtcs:[val('code1'),val('code2'),val('code3')].filter(Boolean),
+    stft1:val('stft1')||val('qld_stft1'), ltft1:val('ltft1')||val('qld_ltft1'),
+    stft2:val('stft2')||val('qld_stft2'), ltft2:val('ltft2')||val('qld_ltft2'),
+    maf:val('maf')||val('qld_maf'), mapKpa:val('mapKpa'),
+    ect:val('ect')||val('qld_ect'), rpm:val('rpm')||val('qld_rpm'),
+    koeo:val('koeo')||val('qld_koeo'), charge:val('charge'),
+    fuelPressure:val('fuelPressure')||val('qld_fuelpressure'), fuelPsi:val('fuelPsi'),
+    o2b1:val('o2b1'), o2b2:val('o2b2'), o2b1v:val('o2b1v'), o2b2v:val('o2b2v'),
+    ref5v:val('ref5v'), sensorGround:val('sensorGround'),
+    fusePower:val('fusePower'), groundDrop:val('groundDrop'),
+    mafUnplug:val('mafUnplug'), rpmSignal:val('rpmSignal'),
+    misfire:val('misfire'), misfireCyl:val('misfireCyl'),
+    vacLeak:val('vacLeak'), intakeCrack:val('intakeCrack'),
+    connectorDamage:val('connectorDamage'), ucodes:val('ucodes'),
+    moduleOffline:val('moduleOffline'), security:val('security'),
+    transSymptom:val('transSymptom'),
+    recallCount:val('recallCount'), relevantRecall:val('relevantRecall'),
+    scannerBrand:val('scannerBrand')||'Autel', scannerModel:val('scannerModel')||'MK900BT',
+    knownProblems:val('knownProblems'), testNotes:val('testNotes'),
+    idleStft1:val('idleStft1'), idleLtft1:val('idleLtft1'),
+    idleStft2:val('idleStft2'), idleLtft2:val('idleLtft2'),
+    rpm2500Stft1:val('rpm2500Stft1'), rpm2500Ltft1:val('rpm2500Ltft1'),
+    loadStft1:val('loadStft1'), loadLtft1:val('loadLtft1'),
+    customerName:val('customerName')||val('customerNameDash'),
+    customerPhone:val('customerPhoneDash'),
+    scannerTier:val('scannerTier')
+  };
+}
+
+function contextToText(ctx){
+  return [
+    'VEHICLE: '+ctx.vehicle,
+    ctx.vin?'VIN: '+ctx.vin:'',
+    ctx.mileage?'Mileage: '+ctx.mileage:'',
+    ctx.symptom?'Main Symptom: '+ctx.symptom:'',
+    ctx.complaint?'Customer Complaint: '+ctx.complaint:'',
+    ctx.dtcs.length?'DTCs: '+ctx.dtcs.join(', '):'DTCs: None entered',
+    '',
+    '=== FUEL TRIMS ===',
+    ctx.stft1?'STFT B1: '+ctx.stft1+'%':'',
+    ctx.ltft1?'LTFT B1: '+ctx.ltft1+'%':'',
+    ctx.stft2?'STFT B2: '+ctx.stft2+'%':'',
+    ctx.ltft2?'LTFT B2: '+ctx.ltft2+'%':'',
+    ctx.idleStft1?'Idle STFT B1: '+ctx.idleStft1+'%  LTFT B1: '+ctx.idleLtft1+'%':'',
+    ctx.rpm2500Stft1?'2500RPM STFT B1: '+ctx.rpm2500Stft1+'%  LTFT B1: '+ctx.rpm2500Ltft1+'%':'',
+    ctx.loadStft1?'Load STFT B1: '+ctx.loadStft1+'%  LTFT B1: '+ctx.loadLtft1+'%':'',
+    '',
+    '=== LIVE DATA ===',
+    ctx.maf?'MAF: '+ctx.maf+' g/s':'',
+    ctx.mapKpa?'MAP: '+ctx.mapKpa+' kPa':'',
+    ctx.ect?'ECT: '+ctx.ect+'F':'',
+    ctx.rpm?'RPM: '+ctx.rpm:'',
+    ctx.koeo?'Battery KOEO: '+ctx.koeo+'V':'',
+    ctx.charge?'Charging: '+ctx.charge+'V':'',
+    ctx.fuelPressure?'Fuel Pressure Status: '+ctx.fuelPressure:'',
+    ctx.fuelPsi?'Fuel PSI Measured: '+ctx.fuelPsi:'',
+    ctx.o2b1?'O2 B1S1: '+ctx.o2b1+(ctx.o2b1v?' ('+ctx.o2b1v+'V)':''):'',
+    ctx.o2b2?'O2 B2S1: '+ctx.o2b2+(ctx.o2b2v?' ('+ctx.o2b2v+'V)':''):'',
+    '',
+    '=== CIRCUIT CHECKS ===',
+    ctx.ref5v?'5V Reference: '+ctx.ref5v:'',
+    ctx.sensorGround?'Sensor Ground: '+ctx.sensorGround:'',
+    ctx.fusePower?'Fuse Power: '+ctx.fusePower:'',
+    ctx.groundDrop?'Ground Drop: '+ctx.groundDrop:'',
+    ctx.vacLeak==='Yes'?'Vacuum/Air Leak: FOUND':'',
+    ctx.connectorDamage==='Yes'?'Connector Damage: YES':'',
+    ctx.mafUnplug?'MAF Unplug Test: '+ctx.mafUnplug:'',
+    ctx.rpmSignal?'RPM While Cranking: '+ctx.rpmSignal:'',
+    ctx.misfire?'Misfire: '+ctx.misfire+(ctx.misfireCyl?' Cyl '+ctx.misfireCyl:''):'',
+    ctx.ucodes==='Yes'?'U-Codes Present: YES':'',
+    ctx.moduleOffline==='Yes'?'Module Offline: YES':'',
+    ctx.security?'Security Light: '+ctx.security:'',
+    ctx.transSymptom&&ctx.transSymptom!=='None'?'Trans Symptom: '+ctx.transSymptom:'',
+    ctx.relevantRecall==='Yes'?'RELEVANT RECALL: YES ('+ctx.recallCount+' recall(s))':'',
+    ctx.knownProblems?'Known NHTSA Issues: '+ctx.knownProblems.slice(0,200):'',
+    ctx.testNotes?'Tech Notes: '+ctx.testNotes:'',
+    'Scanner: '+ctx.scannerBrand+' '+ctx.scannerModel,
+  ].filter(Boolean).join('\n');
+}
+
+// ── Core streaming API caller ──────────────────────────────────────────────────
+async function streamClaude(systemPrompt, userMsg, outputElId, thinkingElId, actionsElId){
+  const outputEl=$(outputElId), thinkEl=$(thinkingElId), actEl=$(actionsElId);
+  if(thinkEl)thinkEl.style.display='flex';
+  if(outputEl){outputEl.style.display='none';outputEl.textContent=''}
+  if(actEl)actEl.style.display='none';
+
+  try{
+    const response=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1200,
+        stream:true,
+        system:systemPrompt,
+        messages:[{role:'user',content:userMsg}]
+      })
+    });
+
+    if(!response.ok){
+      const err=await response.text();
+      throw new Error('API '+response.status+': '+err.slice(0,120));
+    }
+
+    if(thinkEl)thinkEl.style.display='none';
+    if(outputEl){outputEl.style.display='block';outputEl.textContent=''}
+
+    const reader=response.body.getReader();
+    const decoder=new TextDecoder();
+    let buffer='';
+
+    while(true){
+      const{done,value}=await reader.read();
+      if(done)break;
+      buffer+=decoder.decode(value,{stream:true});
+      const lines=buffer.split('\n');
+      buffer=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: '))continue;
+        const data=line.slice(6).trim();
+        if(data==='[DONE]')continue;
+        try{
+          const evt=JSON.parse(data);
+          if(evt.type==='content_block_delta'&&evt.delta?.type==='text_delta'){
+            if(outputEl)outputEl.textContent+=evt.delta.text;
+          }
+        }catch(e){}
+      }
+    }
+    if(actEl)actEl.style.display='flex';
+
+  }catch(e){
+    if(thinkEl)thinkEl.style.display='none';
+    if(outputEl){
+      outputEl.style.display='block';
+      outputEl.textContent='AI error: '+e.message+'\n\nCheck your internet connection. The built-in Analyze button on the Dashboard still works without AI.';
+    }
+  }
+}
+
+// ── FEATURE 1: Streaming AI Diagnosis ─────────────────────────────────────────
+async function runAIDiagnosis(mode='standard'){
+  const ctx=buildDiagContext();
+  const sys=`You are an ASE Master Technician with 20+ years of experience working for AutoMedic Diagnostics. Analyze scanner data and give ONE confident pinpoint diagnosis.
+
+Rules:
+- Lead with THE single most probable root cause — one clear answer first
+- Explain WHY this specific data points there
+- Give the best next verification test
+- End with what to tell the repair shop in plain English
+- No hedging, no lists of possibilities — pick the highest probability answer
+- Be direct and confident like a seasoned tech
+${mode==='deep'?'\nDEEP ANALYSIS: Go further. Explain system-level logic, what the ECM sees, what patterns confirm vs rule out other causes, and give a full step-by-step verification sequence.':''}`;
+
+  showTab('ai');
+  await streamClaude(sys,'Analyze this data and give me the most probable root cause:\n\n'+contextToText(ctx),'aiDiagBox','aiDiagThinking','aiDiagActions');
+  refreshDTCChips();
+}
+
+function sendAIDiagToReport(){
+  const txt=$('aiDiagBox')?.textContent||'';
+  if(!txt)return;
+  const cur=val('testNotes');
+  set('testNotes',(cur?cur+'\n\n---AI DIAGNOSIS---\n':'')+txt);
+  alert('AI diagnosis added to Tech Notes in Guided Tests tab.');
+}
+
+// ── FEATURE 2: DTC Deep Dive ───────────────────────────────────────────────────
+async function runDTCDeepDive(code){
+  if(!code||code.length<4){alert('Enter a valid DTC (e.g. P0171)');return;}
+  const ctx=buildDiagContext();
+  const sys=`You are an ASE Master Technician specializing in OBD-II diagnostics. Give a complete practical breakdown of a DTC for a specific vehicle. Be thorough and scannable.`;
+  const msg=`Vehicle: ${ctx.vehicle}${ctx.vin?' (VIN: '+ctx.vin+')':''}
+DTC: ${code}
+Other codes present: ${ctx.dtcs.filter(d=>d!==code).join(', ')||'None'}
+Symptom: ${ctx.symptom||'Not specified'}
+STFT B1=${ctx.stft1||'?'}%, LTFT B1=${ctx.ltft1||'?'}%, MAF=${ctx.maf||'?'} g/s, ECT=${ctx.ect||'?'}F
+
+Give me:
+1. WHAT IT IS — which system and circuit this code covers
+2. WHAT THE ECM SAW — exactly what triggered this code
+3. TOP 5 CAUSES — ranked by probability for this vehicle, most likely first
+4. FIRST TEST — the single best first test before replacing anything
+5. PIDs TO WATCH — specific live data that will confirm root cause
+6. COMMON MISDIAGNOSIS — what part shops replace that usually is not the problem`;
+
+  showTab('ai');
+  await streamClaude(sys,msg,'dtcBox','dtcThinking','dtcActions');
+}
+
+function refreshDTCChips(){
+  const row=$('dtcChipRow'),noMsg=$('dtcNoCodesMsg');
+  if(!row)return;
+  const dtcs=[val('code1'),val('code2'),val('code3')].filter(Boolean);
+  if(dtcs.length===0){if(noMsg)noMsg.style.display='';return;}
+  if(noMsg)noMsg.style.display='none';
+  // Remove old chips
+  row.querySelectorAll('.dtc-chip').forEach(c=>c.remove());
+  dtcs.forEach(code=>{
+    const chip=document.createElement('span');
+    chip.className='dtc-chip';
+    chip.textContent=code;
+    chip.onclick=()=>runDTCDeepDive(code);
+    row.appendChild(chip);
+  });
+}
+
+// ── FEATURE 3: AI Customer Report Writer ──────────────────────────────────────
+async function runAIReport(){
+  const ctx=buildDiagContext();
+  const sys=`You are a professional automotive diagnostics report writer for AutoMedic Diagnostics. Write customer-facing reports in plain English — no jargon, no codes the customer cannot understand. Sound confident, professional, and helpful. AutoMedic is a mobile diagnostics-only service — never suggest we perform repairs.`;
+
+  const msg=`Write a professional customer diagnostic report using this data:
+
+${contextToText(ctx)}
+
+Format the report exactly like this:
+
+AUTOMEDIC DIAGNOSTICS — DIAGNOSTIC REPORT
+We Give Answers, Not Codes.
+Phone: 850-368-2285 | automedicdiagnostics.com
+---
+Customer: ${ctx.customerName||'[Customer Name]'}
+Vehicle: ${ctx.vehicle}
+${ctx.mileage?'Mileage: '+ctx.mileage:''}
+Date: ${new Date().toLocaleDateString()}
+---
+
+WHAT WE FOUND:
+[Plain English explanation of the problem found — what system, what is happening, what the data showed. No codes. 2-4 sentences.]
+
+ROOT CAUSE:
+[Single most probable cause in plain English — what part or system is actually failing and why.]
+
+WHAT THIS MEANS FOR YOUR VEHICLE:
+[Driveability impact — is it safe to drive? Is it urgent? What happens if left unrepaired? 2-3 sentences.]
+
+RECOMMENDED NEXT STEP:
+[What the customer should tell a repair shop. Specific, actionable. Reference the root cause directly.]
+
+DIAGNOSTIC CODES FOUND:
+${ctx.dtcs.length?ctx.dtcs.join(', '):'None detected during this scan'}
+
+---
+Diagnostic performed by AutoMedic Diagnostics. This report covers diagnostic testing only. AutoMedic does not perform mechanical repairs. Results based on data available at time of inspection.`;
+
+  showTab('ai');
+  await streamClaude(sys,msg,'aiReportBox','aiReportThinking','aiReportActions');
+}
+
+function downloadAIReport(){
+  const txt=$('aiReportBox')?.textContent||'';
+  if(!txt){alert('Generate a report first.');return;}
+  const blob=new Blob([txt],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='AutoMedic_AI_Report_'+Date.now()+'.txt';
+  a.click();URL.revokeObjectURL(a.href);
+}
+
+// ── FEATURE 4: Fuel Trim AI Interpreter ───────────────────────────────────────
+async function runFuelTrimAI(){
+  const ctx=buildDiagContext();
+  if(!ctx.stft1&&!ctx.ltft1&&!ctx.idleStft1){
+    alert('Enter fuel trim values in the Dashboard Quick Live Data or the Live Data Import tab first.');return;
+  }
+  const sys=`You are an expert automotive diagnostician specializing in fuel trim analysis. Give a single, confident interpretation of fuel trim patterns — what the data points to, why, and what to check first.`;
+
+  const msg=`Analyze these fuel trim readings for a ${ctx.vehicle}:
+
+IDLE:
+  STFT B1: ${ctx.stft1||ctx.idleStft1||'not entered'}%
+  LTFT B1: ${ctx.ltft1||ctx.idleLtft1||'not entered'}%
+  STFT B2: ${ctx.stft2||ctx.idleStft2||'not entered'}%
+  LTFT B2: ${ctx.ltft2||ctx.idleLtft2||'not entered'}%
+
+2500 RPM:
+  STFT B1: ${ctx.rpm2500Stft1||'not entered'}%
+  LTFT B1: ${ctx.rpm2500Ltft1||'not entered'}%
+
+LOAD:
+  STFT B1: ${ctx.loadStft1||'not entered'}%
+  LTFT B1: ${ctx.loadLtft1||'not entered'}%
+
+MAF: ${ctx.maf||'not entered'} g/s
+Fuel Pressure: ${ctx.fuelPressure||'not entered'}
+DTCs: ${ctx.dtcs.join(', ')||'none'}
+Symptom: ${ctx.symptom||'none'}
+
+Tell me:
+1. PATTERN — what this trim pattern means (vacuum leak, fuel delivery, MAF, injector, etc.)
+2. CONFIDENCE — how certain you are and what would change the diagnosis
+3. FIRST TEST — the single most important test to run right now
+4. WHAT TO TELL THE SHOP — in plain terms`;
+
+  showTab('ai');
+  await streamClaude(sys,msg,'ftAIBox','ftAIThinking','ftAIActions');
+}
+
+// ── Shared helpers ─────────────────────────────────────────────────────────────
+function clearAIBox(boxId, thinkId, actId){
+  const b=$(boxId),t=$(thinkId),a=$(actId);
+  if(b){b.style.display='none';b.textContent=''}
+  if(t)t.style.display='none';
+  if(a)a.style.display='none';
+}
+
+function copyAIText(boxId){
+  const txt=$(boxId)?.textContent||'';
+  if(!txt){alert('Nothing to copy yet.');return;}
+  navigator.clipboard?.writeText(txt).then(()=>alert('Copied!')).catch(()=>alert('Copy blocked — select text manually.'));
+}
+
+// Auto-refresh DTC chips when codes change
+['code1','code2','code3'].forEach(id=>{
+  const el=$(id);
+  if(el)el.addEventListener('input',()=>setTimeout(refreshDTCChips,300));
+});
 
 // ── INIT ───────────────────────────────────────────────────────────────────────
 qsa('input,select,textarea').forEach(e=>e.addEventListener('input',updateReadiness));
