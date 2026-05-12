@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- iOS home screen behavior: keep browser chrome (fixes script errors in standalone mode) -->
+<meta name="apple-mobile-web-app-capable" content="no">
+<meta name="mobile-web-app-capable" content="no">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AutoMedic">
+<link rel="apple-touch-icon" href="https://automedicdiagnostics.com/favicon.png">
 <title>AutoMedic Diagnostics Pro App V12</title>
 <style>
 :root{--red:#ff173d;--dark:#05070c;--panel:rgba(10,14,24,.91);--panel2:rgba(17,24,39,.95);--line:rgba(255,255,255,.15);--text:#f8fafc;--muted:#94a3b8;--green:#18f08b;--blue:#33c7ff;--amber:#ffd05a;--bad:#ff5572;--ok:#4ade80}
@@ -521,11 +527,11 @@ pre{white-space:pre-wrap;background:rgba(0,0,0,.45);border:1px solid var(--line)
 </div><!-- .app -->
 
 <script>
-// ── LOGO ─────────────────────────────────────────────────────────────────────
+// -- LOGO ---------------------------------------------------------------------
 const LOGO_DATA='data:image/webp;base64,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';
 if(LOGO_DATA) document.getElementById('logo').style.backgroundImage=`url(${LOGO_DATA})`;
 
-// ── CORE UTILS ────────────────────────────────────────────────────────────────
+// -- CORE UTILS ----------------------------------------------------------------
 const $=id=>document.getElementById(id);
 const qsa=s=>Array.from(document.querySelectorAll(s));
 
@@ -575,7 +581,7 @@ function codes(){return['code1','code2','code3'].map(id=>val(id).toUpperCase().r
 function has(list){return list.some(c=>codes().includes(c))}
 function yes(id,exp='Yes'){return val(id)===exp}
 
-// ── VIN ENGINE ────────────────────────────────────────────────────────────────
+// -- VIN ENGINE ----------------------------------------------------------------
 function setStatusMsg(msg){[$('status'),$('vinPullStatus')].forEach(b=>{if(b)b.textContent=msg})}
 
 function fetchJSONP(url,callbackParam='callback'){
@@ -592,31 +598,61 @@ function fetchJSONP(url,callbackParam='callback'){
 }
 
 async function fetchJSON(url,timeoutMs=10000){
-  const ctrl=new AbortController();
-  const t=setTimeout(()=>ctrl.abort(),timeoutMs);
-  try{const r=await fetch(url,{cache:'no-store',signal:ctrl.signal});clearTimeout(t);if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}
-  catch(e){clearTimeout(t);throw e}
+  const r = await fetch(url, {cache:'no-store', signal: safeAbort(timeoutMs)});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return await r.json();
 }
 
 async function fetchWithFallback(url,label,supportsJSONP=false){
-  const proxies=[
-    u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-    u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-    u=>`https://cors-proxy.fringe.zone/${u}`,
-    u=>`https://thingproxy.freeboard.io/fetch/${u}`,
-    u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-  ];
+  setStatusMsg('Fetching '+label+'...');
   const errors=[];
+
+  // Try direct first (works on most modern browsers with CORS)
+  try{
+    const r = await fetch(url, {cache:'no-store', signal: safeAbort(8000)});
+    if(r.ok){
+      const data = await r.json();
+      if(data) return data;
+    }
+    errors.push('direct HTTP '+r.status);
+  }catch(e){ errors.push('direct: '+e.message); }
+
+  // Proxy fallbacks
+  const proxies=[
+    u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
+    u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
+    u=>'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u),
+    u=>'https://cors-proxy.fringe.zone/'+u,
+    u=>'https://thingproxy.freeboard.io/fetch/'+u,
+  ];
+
+  for(let i=0;i<proxies.length;i++){
+    setStatusMsg('Fetching '+label+' (try '+(i+2)+'/6)...');
+    try{
+      const proxyUrl = proxies[i](url);
+      const r = await fetch(proxyUrl, {cache:'no-store', signal: safeAbort(10000)});
+      if(r.ok){
+        const text = await r.text();
+        try{
+          const data = JSON.parse(text);
+          if(data) return data;
+        }catch(parseErr){
+          errors.push('proxy '+(i+1)+' parse: '+parseErr.message);
+        }
+      } else {
+        errors.push('proxy '+(i+1)+' HTTP '+r.status);
+      }
+    }catch(e){ errors.push('proxy '+(i+1)+': '+e.message); }
+  }
+
+  // JSONP last resort for NHTSA only
   if(supportsJSONP){
-    setStatusMsg(`Reading ${label}…`);
-    try{return await fetchJSONP(url)}catch(e){errors.push('JSONP: '+e.message)}
+    try{
+      return await fetchJSONP(url);
+    }catch(e){ errors.push('JSONP: '+e.message); }
   }
-  for(const proxy of proxies){
-    setStatusMsg(`Fetching ${label}…`);
-    try{return await fetchJSON(proxy(url))}catch(e){errors.push(e.message)}
-  }
-  try{return await fetchJSON(url)}catch(e){errors.push('direct: '+e.message)}
-  throw new Error(errors.slice(-2).join(' | '));
+
+  throw new Error('All fetch methods failed. Last errors: '+errors.slice(-3).join(' | '));
 }
 
 function applyVinData(v){
@@ -637,13 +673,17 @@ function applyVinData(v){
 function showVinManualFallback(errMsg){
   [$('status'),$('vinPullStatus')].filter(Boolean).forEach(box=>{
     box.className='badbox';
-    box.innerHTML=`<b>⚠ VIN pull failed.</b><br><small style="color:#fca5a5">${esc(errMsg)}</small><br><br>
-    <b>Fix:</b> Upload this file to GitHub Pages. Once live at <b>automedicdiagnostics.com/app.html</b>, VIN pull works in any browser.<br><br>
-    <b>Right now:</b> Enter vehicle info manually in Values Hub.<br><br>
-    <div class="btns" style="margin-top:6px">
-      <button class="btn blue" onclick="decodeAll()">⟳ Retry</button>
-      <button class="btn ghost" onclick="showTab('values')">Enter Manually</button>
-    </div>`;
+    box.innerHTML='<b>VIN pull failed.</b><br>'+
+      '<small style="color:#fca5a5;display:block;margin:6px 0;font-size:11px;line-height:1.4">'+esc(errMsg)+'</small>'+
+      '<b>Common fixes:</b><br>'+
+      '1. Check your internet connection<br>'+
+      '2. Make sure VIN is exactly 17 characters (no I, O, or Q)<br>'+
+      '3. Wait a moment and tap Retry<br>'+
+      '4. Or enter vehicle info manually in Values Hub<br>'+
+      '<div class="btns" style="margin-top:8px">'+
+      '<button class="btn blue" onclick="decodeAll()" style="font-size:12px">Retry</button>'+
+      '<button class="btn ghost" onclick="showTab(\'values\')" style="font-size:12px">Enter Manually</button>'+
+      '</div>';
   });
 }
 
@@ -652,14 +692,14 @@ async function decodeAll(){
   // SECURITY FIX: strict VIN validation before any API call
   const vinErr=$('vinError');
   if(!rawVin||rawVin.length!==17||!VIN_RE.test(rawVin)){
-    if(vinErr){vinErr.textContent='Enter a valid 17-character VIN (letters A–H, J–N, P–Z and digits only, no I/O/Q).';vinErr.style.display=''}
+    if(vinErr){vinErr.textContent='Enter a valid 17-character VIN (letters A-H, J-N, P-Z and digits only, no I/O/Q).';vinErr.style.display=''}
     const b=$('status');if(b){b.innerHTML='<b>Enter a valid 17-character VIN first.</b>';b.className='badbox'}
     return;
   }
   if(vinErr)vinErr.style.display='none';
   set('vin',rawVin);set('vinQuick',rawVin);
   const setStatus=(msg,cls='okbox')=>{[$('status'),$('vinPullStatus')].forEach(b=>{if(b){b.textContent=msg;b.className=cls}})};
-  setStatus('Connecting to NHTSA — decoding VIN…');
+  setStatus('Connecting to NHTSA -- decoding VIN...');
   const yr=val('year');
   const vinUrl=`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/${encodeURIComponent(rawVin)}?format=json${yr?'&modelyear='+encodeURIComponent(yr):''}`;
   try{
@@ -670,13 +710,13 @@ async function decodeAll(){
     applyVinData(v);
     estimateBaselines();
     updateVehicleSummary();
-    setStatus('✓ VIN decoded — pulling recalls…');
+    setStatus('OK VIN decoded -- pulling recalls...');
     await pullRecalls();
-    setStatus('✓ Recalls loaded — pulling complaint patterns…');
+    setStatus('OK Recalls loaded -- pulling complaint patterns...');
     await pullComplaints();
-    setStatus('✓ VIN + complaints loaded — pulling AI baselines…','okbox');
+    setStatus('OK VIN + complaints loaded -- pulling AI baselines...','okbox');
     updateReadiness();
-    // Auto-fire AI baseline lookup after VIN pull — no button needed
+    // Auto-fire AI baseline lookup after VIN pull -- no button needed
     autoBaselineLookup();
   }catch(e){
     showVinManualFallback(e.message);
@@ -704,7 +744,7 @@ async function pullRecalls(){
       const flagged=lastRecalls.some(r=>(r.Component||'').toLowerCase().split(/[,/]/).some(c=>complaint.includes(c.trim().toLowerCase().split(' ')[0])&&c.trim().length>3));
       set('relevantRecall',flagged?'Yes':'No');
       const flagDiv=$('recallFlag');
-      if(flagDiv){if(flagged){flagDiv.textContent='⚠ RECALL MAY MATCH COMPLAINT — Verify VIN at nhtsa.gov/recalls';flagDiv.style.display='block'}else{flagDiv.style.display='none'}}
+      if(flagDiv){if(flagged){flagDiv.textContent='[WARN] RECALL MAY MATCH COMPLAINT -- Verify VIN at nhtsa.gov/recalls';flagDiv.style.display='block'}else{flagDiv.style.display='none'}}
     }else{
       set('recallSummary','No open recalls returned by NHTSA. Verify at nhtsa.gov/recalls.');
       set('recallCount',0);
@@ -726,7 +766,7 @@ async function pullComplaints(){
       if(!descriptions[comp]&&c.summary)descriptions[comp]=c.summary.slice(0,120);
     });
     const topComps=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
-    const summary=topComps.length?'Top NHTSA complaint categories for '+year+' '+make+' '+model+':\n\n'+topComps.map(([k,n])=>`• ${k}: ${n} complaint${n>1?'s':''}`).join('\n')+'\n\nTotal complaints on file: '+lastComplaints.length:'No NHTSA complaint patterns returned.';
+    const summary=topComps.length?'Top NHTSA complaint categories for '+year+' '+make+' '+model+':\n\n'+topComps.map(([k,n])=>`- ${k}: ${n} complaint${n>1?'s':''}`).join('\n')+'\n\nTotal complaints on file: '+lastComplaints.length:'No NHTSA complaint patterns returned.';
     set('knownProblems',summary);
     const card=$('knownProblemsCard'),list=$('knownProblemsList'),vehicleLabel=$('knownProblemsVehicle');
     if(card&&list&&topComps.length){
@@ -736,7 +776,7 @@ async function pullComplaints(){
       list.innerHTML=topComps.map(([comp,count],i)=>{
         const pct=Math.round(count/max*100);
         const color=pct>66?'#ff173d':pct>33?'#ffd05a':'#18f08b';
-        const desc=descriptions[comp]?`<div style="font-size:11px;color:#94a3b8;margin-top:3px">${esc(descriptions[comp])}…</div>`:'';
+        const desc=descriptions[comp]?`<div style="font-size:11px;color:#94a3b8;margin-top:3px">${esc(descriptions[comp])}...</div>`:'';
         return `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
             <div style="font-weight:800;font-size:13px">${i+1}. ${esc(comp)}</div>
@@ -754,10 +794,10 @@ async function pullComplaints(){
 function updateVehicleSummary(){
   const vehicle=[val('year'),val('make'),val('model'),val('engine')].filter(Boolean).join(' ');
   const tag=[val('plateState'),val('vehicleTag')].filter(Boolean).join(' ');
-  $('vehicleSummary').textContent=(vehicle||'No vehicle loaded yet.')+(tag?' • Tag: '+tag:'');
+  $('vehicleSummary').textContent=(vehicle||'No vehicle loaded yet.')+(tag?' - Tag: '+tag:'');
 }
 
-// ── PHOTO OCR ENGINE (NEW) ────────────────────────────────────────────────────
+// -- PHOTO OCR ENGINE (NEW) ----------------------------------------------------
 function handleOCRImage(input){
   const file=input.files[0];
   if(!file)return;
@@ -779,7 +819,7 @@ async function runOCR(dataUrl){
   results.style.display='none';
   statusEl.style.display='block';
   statusEl.className='warnbox';
-  statusEl.textContent='Sending image to AI… usually 3-6 seconds.';
+  statusEl.textContent='Sending image to AI... usually 3-6 seconds.';
 
   // Extract base64 data and media type
   const [header,base64Data]=dataUrl.split(',');
@@ -832,11 +872,11 @@ Return ONLY a JSON object with these exact keys (omit any key if the value is no
 }
 
 Rules:
-- Fuel trim values like "+12.5 %" → 12.5
-- Negative values like "-8.2 %" → -8.2
-- RPM like "750 RPM" → 750
-- ECT like "198°F" or "198 F" → 198
-- Battery/voltage like "14.2V" → 14.2
+- Fuel trim values like "+12.5 %" -> 12.5
+- Negative values like "-8.2 %" -> -8.2
+- RPM like "750 RPM" -> 750
+- ECT like "198 degF" or "198 F" -> 198
+- Battery/voltage like "14.2V" -> 14.2
 - DTCs like "P0171" stay as strings
 - If a value is ambiguous or unreadable, use null
 - Return ONLY the JSON object, no other text`
@@ -870,7 +910,7 @@ Rules:
     displayOCRResults(parsed);
     logOCRHistory(parsed);
     statusEl.className='okbox';
-    statusEl.textContent='✅ Image read successfully. Review extracted values below.';
+    statusEl.textContent='[OK] Image read successfully. Review extracted values below.';
 
   }catch(e){
     spinner.style.display='none';
@@ -882,9 +922,9 @@ Rules:
 // Field label map for display
 const OCR_LABELS={
   stft1:'STFT Bank 1 (%)',ltft1:'LTFT Bank 1 (%)',stft2:'STFT Bank 2 (%)',ltft2:'LTFT Bank 2 (%)',
-  maf:'MAF (g/s)',mapKpa:'MAP (kPa)',ect:'ECT (°F)',rpm:'RPM',koeo:'Battery (V)',charge:'Charging (V)',
+  maf:'MAF (g/s)',mapKpa:'MAP (kPa)',ect:'ECT ( degF)',rpm:'RPM',koeo:'Battery (V)',charge:'Charging (V)',
   fuelPsi:'Fuel Pressure (measured)',fuelPressure:'Fuel Pressure Status',
-  o2b1v:'O2 B1S1 (V)',o2b2v:'O2 B2S1 (V)',transTemp:'Trans Temp (°F)',
+  o2b1v:'O2 B1S1 (V)',o2b2v:'O2 B2S1 (V)',transTemp:'Trans Temp ( degF)',
   code1:'DTC 1',code2:'DTC 2',code3:'DTC 3',vin:'VIN',mileage:'Mileage',
   year:'Year',make:'Make',model:'Model'
 };
@@ -940,7 +980,7 @@ function applyOCRResultsOnly(){
   updateReadiness();
   qldSync();
   const st=$('ocrStatus');
-  if(st){st.className='okbox';st.textContent=`✅ Applied ${applied} values to the app. ${d.vin?'VIN loaded — tap Pull Vehicle Data.':'Review Values Hub.'}`}
+  if(st){st.className='okbox';st.textContent=`[OK] Applied ${applied} values to the app. ${d.vin?'VIN loaded -- tap Pull Vehicle Data.':'Review Values Hub.'}`}
   showTab('values');
 }
 
@@ -960,14 +1000,14 @@ function logOCRHistory(parsed){
   const ts=new Date().toLocaleTimeString();
   const prev=hist.innerHTML==='No OCR runs yet this session.'?'':hist.innerHTML;
   hist.innerHTML=`<div style="border-bottom:1px solid rgba(255,255,255,.07);padding-bottom:6px;margin-bottom:6px">
-    <span style="color:#18f08b;font-weight:900">${ts}</span> — ${count} values extracted<br>
+    <span style="color:#18f08b;font-weight:900">${ts}</span> -- ${count} values extracted<br>
     ${parsed.code1?`<span style="color:#ff173d;font-weight:900">DTC: ${esc(parsed.code1)}</span> `:''}
     ${parsed.stft1!=null?`STFT B1: ${esc(String(parsed.stft1))}% `:''}
     ${parsed.maf!=null?`MAF: ${esc(String(parsed.maf))} g/s`:''}
   </div>`+prev;
 }
 
-// ── ANALYSIS ENGINE ───────────────────────────────────────────────────────────
+// -- ANALYSIS ENGINE -----------------------------------------------------------
 function estimateBaselines(){
   const L=parseFloat(val('displacement'))||null;
   if(L){
@@ -976,15 +1016,15 @@ function estimateBaselines(){
     if(!val('specMafHigh'))set('specMafHigh',hi);
   }
   const rows=[
-    ['Battery KOEO','12.4–12.7V','Below 12.2V needs load testing'],
+    ['Battery KOEO','12.4-12.7V','Below 12.2V needs load testing'],
     ['Cranking voltage','Usually above 9.6V','Strategy varies'],
-    ['Charging voltage','13.2–15.0V','Smart charging may vary'],
+    ['Charging voltage','13.2-15.0V','Smart charging may vary'],
     ['5V reference','~5.0V','Missing on multiple sensors = circuit issue'],
     ['Fuel trims','Within +/-10% good; +/-15% alert','Use STFT + LTFT patterns'],
-    ['ECT warm','185–220°F general','Pull exact thermostat spec'],
-    ['MAP warm idle','25–45 kPa / ~0.8–1.6V general','Altitude/cam/load dependent'],
-    ['MAF warm idle',L?`${(L*0.7).toFixed(1)}–${(L*1.2).toFixed(1)} g/s estimated`:'Needs engine size','Replace with exact OEM spec'],
-    ['O2 upstream narrowband','Switching ~0.1–0.9V','Wideband uses lambda/current'],
+    ['ECT warm','185-220 degF general','Pull exact thermostat spec'],
+    ['MAP warm idle','25-45 kPa / ~0.8-1.6V general','Altitude/cam/load dependent'],
+    ['MAF warm idle',L?`${(L*0.7).toFixed(1)}-${(L*1.2).toFixed(1)} g/s estimated`:'Needs engine size','Replace with exact OEM spec'],
+    ['O2 upstream narrowband','Switching ~0.1-0.9V','Wideband uses lambda/current'],
     ['O2 downstream','Steadier than upstream','Should not copy upstream'],
     ['Fuel pressure','OEM SPEC REQUIRED','Enter from ALLDATA/Mitchell/OEM'],
     ['Transmission',val('transmission')||'Unknown from VIN','Pull TCM data/live values'],
@@ -1119,7 +1159,7 @@ function loadData(data){
 
 function saveJob(){
   const jobs=JSON.parse(localStorage.getItem('automedicJobsV12')||'[]');
-  const job={id:Date.now(),date:new Date().toLocaleString(),vin:val('vin'),vehicle:[val('year'),val('make'),val('model')].filter(Boolean).join(' ')+(val('vehicleTag')?' • Tag '+[val('plateState'),val('vehicleTag')].filter(Boolean).join(' '):''),result:(lastResult||analyzeInputs()).name,data:formData()};
+  const job={id:Date.now(),date:new Date().toLocaleString(),vin:val('vin'),vehicle:[val('year'),val('make'),val('model')].filter(Boolean).join(' ')+(val('vehicleTag')?' - Tag '+[val('plateState'),val('vehicleTag')].filter(Boolean).join(' '):''),result:(lastResult||analyzeInputs()).name,data:formData()};
   jobs.unshift(job);
   localStorage.setItem('automedicJobsV12',JSON.stringify(jobs.slice(0,80)));
   renderHistory();
@@ -1129,7 +1169,7 @@ function saveJob(){
 function renderHistory(){
   const jobs=JSON.parse(localStorage.getItem('automedicJobsV12')||'[]');
   // SECURITY FIX: esc() on all rendered job history fields
-  put('historyList',jobs.length?jobs.map(j=>`<div class="historyItem"><div><b>${esc(j.vehicle||'Vehicle')}</b><br><span class="mini">${esc(j.vin||'')} • ${esc(j.date||'')} • ${esc(j.result||'')}</span></div><div class="btns"><button class="btn ghost" onclick="loadJob(${j.id})">Load</button><button class="btn" onclick="deleteJob(${j.id})">Delete</button></div></div>`).join(''):'<p class="mini">No saved jobs yet.</p>');
+  put('historyList',jobs.length?jobs.map(j=>`<div class="historyItem"><div><b>${esc(j.vehicle||'Vehicle')}</b><br><span class="mini">${esc(j.vin||'')} - ${esc(j.date||'')} - ${esc(j.result||'')}</span></div><div class="btns"><button class="btn ghost" onclick="loadJob(${j.id})">Load</button><button class="btn" onclick="deleteJob(${j.id})">Delete</button></div></div>`).join(''):'<p class="mini">No saved jobs yet.</p>');
 }
 
 function loadJob(id){
@@ -1142,7 +1182,7 @@ function clearHistory(){if(confirm('Clear all job history?')){localStorage.remov
 function exportHistory(){const blob=new Blob([localStorage.getItem('automedicJobsV12')||'[]'],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='automedic_job_history_v12.json';a.click();URL.revokeObjectURL(a.href)}
 function importHistoryPrompt(){const txt=prompt('Paste exported history JSON');if(txt){try{JSON.parse(txt);localStorage.setItem('automedicJobsV12',txt);renderHistory()}catch(e){alert('Invalid JSON')}}}
 
-// ── LIVE DATA IMPORT ──────────────────────────────────────────────────────────
+// -- LIVE DATA IMPORT ----------------------------------------------------------
 function parseLooseNumber(txt){if(!txt)return null;const m=String(txt).replace(/,/g,'.').match(/[-+]?\d+(?:\.\d+)?/);return m?parseFloat(m[0]):null}
 
 function importFindValue(text,patterns){
@@ -1187,9 +1227,9 @@ function buildFuelTrimPattern(){
   const oneBankLean=(idle1!==null&&idle1>15&&(idle2===null||Math.abs(idle2)<10))||(idle2!==null&&idle2>15&&(idle1===null||Math.abs(idle1)<10));
   const improves2500=((idle1!==null&&rpm1!==null&&idle1>15&&Math.abs(rpm1)<=10)||(idle2!==null&&rpm2!==null&&idle2>15&&Math.abs(rpm2)<=10));
   const bothRich=(idle1!==null&&idle1<-15)&&(idle2===null||idle2<-15);
-  if(improves2500)direction.push('Pattern: vacuum leak/unmetered air — trims worse at idle, improve at 2500 RPM.');
+  if(improves2500)direction.push('Pattern: vacuum leak/unmetered air -- trims worse at idle, improve at 2500 RPM.');
   else if(oneBankLean)direction.push('Pattern: bank-specific vacuum leak, injector issue, exhaust leak, or O2 skew.');
-  else if(bothIdleLean&&(load1===null||load1>15))direction.push('Pattern: fuel delivery problem or MAF under-reporting — both banks stay lean.');
+  else if(bothIdleLean&&(load1===null||load1>15))direction.push('Pattern: fuel delivery problem or MAF under-reporting -- both banks stay lean.');
   else if(bothRich)direction.push('Pattern rich: leaking injector, purge stuck, high fuel pressure, or MAF/MAP skew.');
   else if([idle1,idle2].some(v=>v!==null&&Math.abs(v)>10))direction.push('Borderline trims. More snapshots at idle, 2500 RPM, and under load needed.');
   else direction.push('Trims look normal or not enough snapshots entered.');
@@ -1204,7 +1244,7 @@ function sendIdleTrimToValues(){
   alert('Idle fuel trim snapshot sent to Values Hub.');
 }
 
-// ── SCANNER IMPORT ENGINE ─────────────────────────────────────────────────────
+// -- SCANNER IMPORT ENGINE -----------------------------------------------------
 function scannerImportText(){return[val('scanTextImport'),val('liveDataImportExtra'),val('scanText'),val('liveDataImport')].filter(Boolean).join('\n')}
 function findFirstMatch(text,regex){const m=String(text||'').match(regex);return m?m[1]||m[0]:''}
 function normalizeDtcList(text){return[...new Set((String(text||'').match(/\b[PCBU][0-9A-F]{4}\b/gi)||[]).map(x=>x.toUpperCase()))]}
@@ -1309,7 +1349,7 @@ function extractCodesFromReport(){
   updateReadiness();
 }
 
-// ── UNIFIED FILE UPLOAD HANDLER (SECURITY FIX: single handler for both inputs) ──
+// -- UNIFIED FILE UPLOAD HANDLER (SECURITY FIX: single handler for both inputs) --
 function handleFileUpload(files, targetTextId){
   const fileArr=[...files];
   fileArr.forEach(async f=>{
@@ -1340,7 +1380,7 @@ function renderMedia(){
     : '<div class="thumb">No attachments yet.</div>');
 }
 
-// ── SCANNER BRAND SELECTOR ─────────────────────────────────────────────────────
+// -- SCANNER BRAND SELECTOR -----------------------------------------------------
 function setScannerBrand(brand){
   const el=$('scannerBrand');if(el)el.value=brand;
   const sel=$('scannerBrandSelect');if(sel)sel.value=brand;
@@ -1350,7 +1390,7 @@ function setScannerBrand(brand){
   const sm=$('scannerModel');if(sm)sm.value=model;
 }
 
-// ── QUICK LIVE DATA ────────────────────────────────────────────────────────────
+// -- QUICK LIVE DATA ------------------------------------------------------------
 function qldSync(){
   const map=[['qld_stft1','stft1'],['qld_ltft1','ltft1'],['qld_stft2','stft2'],['qld_ltft2','ltft2'],['qld_maf','maf'],['qld_fuelpressure','fuelPressure'],['qld_ect','ect'],['qld_koeo','koeo'],['qld_rpm','rpm']];
   map.forEach(([src,dst])=>{const s=$(src),d=$(dst);if(s&&d&&s.value)d.value=s.value});
@@ -1362,16 +1402,16 @@ function qldSync(){
   const pat=$('qldPattern');if(!pat)return;
   let msg='',cls='okbox';
   if(t1>15||t2>15){
-    if(t1>15&&Math.abs(t2)<10)msg='⚠️ Bank 1 lean — bank-specific issue: vacuum leak, injector, O2, or exhaust leak Bank 1 side.';
-    else if(t2>15&&Math.abs(t1)<10)msg='⚠️ Bank 2 lean — bank-specific issue on Bank 2 side.';
-    else msg='🔴 BOTH BANKS LEAN — fuel delivery, MAF under-reading, or large vacuum leak. Smoke test + check fuel pressure.';
+    if(t1>15&&Math.abs(t2)<10)msg='[WARN] Bank 1 lean -- bank-specific issue: vacuum leak, injector, O2, or exhaust leak Bank 1 side.';
+    else if(t2>15&&Math.abs(t1)<10)msg='[WARN] Bank 2 lean -- bank-specific issue on Bank 2 side.';
+    else msg='[RED] BOTH BANKS LEAN -- fuel delivery, MAF under-reading, or large vacuum leak. Smoke test + check fuel pressure.';
     cls='badbox';
   }else if(t1<-15||t2<-15){
-    msg='🔴 RICH CONDITION — leaking injector, purge valve stuck open, high fuel pressure, or MAF over-reading.';cls='badbox';
+    msg='[RED] RICH CONDITION -- leaking injector, purge valve stuck open, high fuel pressure, or MAF over-reading.';cls='badbox';
   }else if(Math.abs(t1)>8||Math.abs(t2)>8){
-    msg='⚠️ Borderline trims — monitor. Enter 2500 RPM trims in Fuel Trims tab for full pattern.';cls='warnbox';
+    msg='[WARN] Borderline trims -- monitor. Enter 2500 RPM trims in Fuel Trims tab for full pattern.';cls='warnbox';
   }else if(t1!==0||t2!==0){
-    msg='✅ Trims look normal. Continue data entry for stronger diagnosis.';cls='okbox';
+    msg='[OK] Trims look normal. Continue data entry for stronger diagnosis.';cls='okbox';
   }
   if(msg){pat.style.display='';pat.className=cls;pat.textContent=msg}else{pat.style.display='none'}
   updateReadiness();
@@ -1383,7 +1423,7 @@ function qldClear(){
   const pat=$('qldPattern');if(pat)pat.style.display='none';
 }
 
-// ── QR CODE SCANNER ─────────────────────────────────────────────────────────────
+// -- QR CODE SCANNER -------------------------------------------------------------
 let qrStream=null, qrAnimFrame=null, qrDetector=null;
 
 function qrShow(id,show){const el=$(id);if(el)el.style.display=show?'':'none'}
@@ -1396,7 +1436,7 @@ function qrSetStatus(msg,type='ok'){
 }
 
 async function startQRScan(){
-  qrSetStatus('Starting camera…');
+  qrSetStatus('Starting camera...');
   qrShow('qrCameraBox',true);
   qrShow('qrStopBtn',true);
   qrShow('qrResult',false);
@@ -1411,11 +1451,11 @@ async function startQRScan(){
     // Use native BarcodeDetector if available (iOS 17+, Chrome Android)
     if('BarcodeDetector' in window){
       qrDetector=new BarcodeDetector({formats:['qr_code']});
-      qrSetStatus('Camera ready — point at QR code on scanner screen.');
+      qrSetStatus('Camera ready -- point at QR code on scanner screen.');
       qrScanLoop();
     } else {
       // Load jsQR from CDN
-      qrSetStatus('Loading QR decoder…');
+      qrSetStatus('Loading QR decoder...');
       loadJsQRLib();
     }
   }catch(e){
@@ -1433,8 +1473,8 @@ function loadJsQRLib(){
   let idx=0;
   function tryNext(){
     if(idx>=cdns.length){
-      // All CDNs failed — use Claude Vision as QR reader
-      qrSetStatus('Using AI to read QR — tap Capture when QR is steady in frame.','warn');
+      // All CDNs failed -- use Claude Vision as QR reader
+      qrSetStatus('Using AI to read QR -- tap Capture when QR is steady in frame.','warn');
       showAIQRCapture();
       return;
     }
@@ -1442,7 +1482,7 @@ function loadJsQRLib(){
     s.src=cdns[idx++];
     s.onload=()=>{
       if(typeof jsQR!=='undefined'){
-        qrSetStatus('Camera ready — point at QR code on scanner screen.');
+        qrSetStatus('Camera ready -- point at QR code on scanner screen.');
         qrScanLoopJSQR();
       } else { tryNext(); }
     };
@@ -1488,7 +1528,7 @@ function qrScanLoopJSQR(){
   });
 }
 
-// Claude Vision fallback — shown when all QR libraries fail
+// Claude Vision fallback -- shown when all QR libraries fail
 function showAIQRCapture(){
   const box=$('qrCameraBox');
   if(!box)return;
@@ -1496,16 +1536,16 @@ function showAIQRCapture(){
   btn.id='qrAIBtn';
   btn.className='btn green';
   btn.style.cssText='width:100%;margin-top:10px;font-size:15px';
-  btn.textContent='📸 Capture QR for AI to Read';
+  btn.textContent='[CAM] Capture QR for AI to Read';
   btn.onclick=async()=>{
-    btn.textContent='🤖 AI reading QR…';btn.disabled=true;
+    btn.textContent='[AI] AI reading QR...';btn.disabled=true;
     const video=$('qrVideo');
     const canvas=document.createElement('canvas');
     canvas.width=video.videoWidth||640;canvas.height=video.videoHeight||480;
     canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
     const base64=canvas.toDataURL('image/jpeg',0.9).split(',')[1];
     stopQRScan();btn.remove();
-    qrSetStatus('🤖 AI reading QR code…','warn');
+    qrSetStatus('[AI] AI reading QR code...','warn');
     try{
       const r=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
@@ -1520,7 +1560,7 @@ function showAIQRCapture(){
       });
       const d=await r.json();
       const txt=(d.content?.find(c=>c.type==='text')?.text||'').trim();
-      if(!txt||txt==='UNREADABLE'){qrSetStatus('QR unreadable — try better lighting or paste the report text below.','bad');return;}
+      if(!txt||txt==='UNREADABLE'){qrSetStatus('QR unreadable -- try better lighting or paste the report text below.','bad');return;}
       await handleQRResult(txt);
     }catch(e){qrSetStatus('AI QR read failed: '+e.message,'bad');}
   };
@@ -1529,31 +1569,31 @@ function showAIQRCapture(){
 
 async function handleQRResult(raw){
   stopQRScan();
-  qrSetStatus('QR detected — fetching report…','ok');
+  qrSetStatus('QR detected -- fetching report...','ok');
   const resultBox=$('qrResult');
-  if(resultBox){resultBox.style.display='';resultBox.className='okbox';resultBox.textContent='QR: '+raw.slice(0,80)+'…';}
+  if(resultBox){resultBox.style.display='';resultBox.className='okbox';resultBox.textContent='QR: '+raw.slice(0,80)+'...';}
 
   if(!raw.startsWith('http')){
-    // Raw text QR — treat directly as report
+    // Raw text QR -- treat directly as report
     if($('scanTextImport'))$('scanTextImport').value=raw;
-    qrSetStatus('QR text loaded — running auto-fill…');
+    qrSetStatus('QR text loaded -- running auto-fill...');
     await importAllScannerData(false);
-    qrSetStatus('✅ QR import complete. Review Values Hub then tap Analyze.');
+    qrSetStatus('[OK] QR import complete. Review Values Hub then tap Analyze.');
     return;
   }
 
-  // URL QR — try fetch chain
+  // URL QR -- try fetch chain
   const proxies=[
-    u=>fetch(u,{cache:'no-store',signal:AbortSignal.timeout(8000)}),
-    u=>fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(u),{cache:'no-store',signal:AbortSignal.timeout(10000)}),
-    u=>fetch('https://corsproxy.io/?url='+encodeURIComponent(u),{cache:'no-store',signal:AbortSignal.timeout(10000)}),
-    u=>fetch('https://cors-proxy.fringe.zone/'+u,{cache:'no-store',signal:AbortSignal.timeout(10000)}),
-    u=>fetch('https://thingproxy.freeboard.io/fetch/'+u,{cache:'no-store',signal:AbortSignal.timeout(10000)}),
+    u=>fetch(u,{cache:'no-store',signal:safeAbort(8000)}),
+    u=>fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(u),{cache:'no-store',signal:safeAbort(10000)}),
+    u=>fetch('https://corsproxy.io/?url='+encodeURIComponent(u),{cache:'no-store',signal:safeAbort(10000)}),
+    u=>fetch('https://cors-proxy.fringe.zone/'+u,{cache:'no-store',signal:safeAbort(10000)}),
+    u=>fetch('https://thingproxy.freeboard.io/fetch/'+u,{cache:'no-store',signal:safeAbort(10000)}),
   ];
 
   let text='';
   for(let i=0;i<proxies.length;i++){
-    qrSetStatus('Fetching report (attempt '+(i+1)+'/5)…');
+    qrSetStatus('Fetching report (attempt '+(i+1)+'/5)...');
     try{
       const r=await proxies[i](raw);
       if(r.ok){text=await r.text();if(text&&text.length>50)break;}
@@ -1561,10 +1601,10 @@ async function handleQRResult(raw){
   }
 
   if(!text){
-    qrSetStatus('Could not fetch report automatically. Use Method 3 below — open QR with iPhone Camera app, copy text, paste below.','bad');
+    qrSetStatus('Could not fetch report automatically. Use Method 3 below -- open QR with iPhone Camera app, copy text, paste below.','bad');
     if(resultBox){
       resultBox.className='warnbox';
-      resultBox.innerHTML='<b>Manual fallback:</b> Open iPhone Camera app → point at QR → tap banner → copy all text → paste in box below.';
+      resultBox.innerHTML='<b>Manual fallback:</b> Open iPhone Camera app -> point at QR -> tap banner -> copy all text -> paste in box below.';
     }
     return;
   }
@@ -1578,12 +1618,12 @@ async function handleQRResult(raw){
 
   if($('scanTextImport'))$('scanTextImport').value=text;
   if($('liveDataImport'))$('liveDataImport').value=text;
-  qrSetStatus('✅ Report loaded ('+text.length+' chars) — running auto-fill…');
+  qrSetStatus('[OK] Report loaded ('+text.length+' chars) -- running auto-fill...');
   await importAllScannerData(false);
 
   const dtcs=[...new Set((text.match(/[PCBU][0-9A-F]{4}/gi)||[]).map(x=>x.toUpperCase()))];
   const vin=text.match(/[A-HJ-NPR-Z0-9]{17}/);
-  let summary='✅ Import complete.';
+  let summary='[OK] Import complete.';
   if(vin)summary+=' VIN: '+vin[0]+'.';
   if(dtcs.length)summary+=' DTCs: '+dtcs.join(', ')+'.';
   qrSetStatus(summary);
@@ -1599,12 +1639,12 @@ function stopQRScan(){
   qrShow('qrStopBtn',false);
 }
 
-// ── FIELD SYNC ─────────────────────────────────────────────────────────────────
+// -- FIELD SYNC -----------------------------------------------------------------
 function syncField(id,value){const el=$(id);if(el)el.value=value;updateReadiness()}
 
-// ══════════════════════════════════════════════════════════════════════════════
+// ==============================================================================
 // AI ASSIST ENGINE
-// ══════════════════════════════════════════════════════════════════════════════
+// ==============================================================================
 
 function buildDiagContext(){
   return {
@@ -1692,7 +1732,7 @@ function contextToText(ctx){
   ].filter(Boolean).join('\n');
 }
 
-// ── Core streaming API caller ──────────────────────────────────────────────────
+// -- Core streaming API caller --------------------------------------------------
 async function streamClaude(systemPrompt, userMsg, outputElId, thinkingElId, actionsElId){
   const outputEl=$(outputElId), thinkEl=$(thinkingElId), actEl=$(actionsElId);
   if(thinkEl)thinkEl.style.display='flex';
@@ -1756,17 +1796,17 @@ async function streamClaude(systemPrompt, userMsg, outputElId, thinkingElId, act
   }
 }
 
-// ── FEATURE 1: Streaming AI Diagnosis ─────────────────────────────────────────
+// -- FEATURE 1: Streaming AI Diagnosis -----------------------------------------
 async function runAIDiagnosis(mode='standard'){
   const ctx=buildDiagContext();
   const sys=`You are an ASE Master Technician with 20+ years of experience working for AutoMedic Diagnostics. Analyze scanner data and give ONE confident pinpoint diagnosis.
 
 Rules:
-- Lead with THE single most probable root cause — one clear answer first
+- Lead with THE single most probable root cause -- one clear answer first
 - Explain WHY this specific data points there
 - Give the best next verification test
 - End with what to tell the repair shop in plain English
-- No hedging, no lists of possibilities — pick the highest probability answer
+- No hedging, no lists of possibilities -- pick the highest probability answer
 - Be direct and confident like a seasoned tech
 ${mode==='deep'?'\nDEEP ANALYSIS: Go further. Explain system-level logic, what the ECM sees, what patterns confirm vs rule out other causes, and give a full step-by-step verification sequence.':''}`;
 
@@ -1783,7 +1823,7 @@ function sendAIDiagToReport(){
   alert('AI diagnosis added to Tech Notes in Guided Tests tab.');
 }
 
-// ── FEATURE 2: DTC Deep Dive ───────────────────────────────────────────────────
+// -- FEATURE 2: DTC Deep Dive ---------------------------------------------------
 async function runDTCDeepDive(code){
   if(!code||code.length<4){alert('Enter a valid DTC (e.g. P0171)');return;}
   const ctx=buildDiagContext();
@@ -1795,12 +1835,12 @@ Symptom: ${ctx.symptom||'Not specified'}
 STFT B1=${ctx.stft1||'?'}%, LTFT B1=${ctx.ltft1||'?'}%, MAF=${ctx.maf||'?'} g/s, ECT=${ctx.ect||'?'}F
 
 Give me:
-1. WHAT IT IS — which system and circuit this code covers
-2. WHAT THE ECM SAW — exactly what triggered this code
-3. TOP 5 CAUSES — ranked by probability for this vehicle, most likely first
-4. FIRST TEST — the single best first test before replacing anything
-5. PIDs TO WATCH — specific live data that will confirm root cause
-6. COMMON MISDIAGNOSIS — what part shops replace that usually is not the problem`;
+1. WHAT IT IS -- which system and circuit this code covers
+2. WHAT THE ECM SAW -- exactly what triggered this code
+3. TOP 5 CAUSES -- ranked by probability for this vehicle, most likely first
+4. FIRST TEST -- the single best first test before replacing anything
+5. PIDs TO WATCH -- specific live data that will confirm root cause
+6. COMMON MISDIAGNOSIS -- what part shops replace that usually is not the problem`;
 
   showTab('ai');
   await streamClaude(sys,msg,'dtcBox','dtcThinking','dtcActions');
@@ -1823,10 +1863,10 @@ function refreshDTCChips(){
   });
 }
 
-// ── FEATURE 3: AI Customer Report Writer ──────────────────────────────────────
+// -- FEATURE 3: AI Customer Report Writer --------------------------------------
 async function runAIReport(){
   const ctx=buildDiagContext();
-  const sys=`You are a professional automotive diagnostics report writer for AutoMedic Diagnostics. Write customer-facing reports in plain English — no jargon, no codes the customer cannot understand. Sound confident, professional, and helpful. AutoMedic is a mobile diagnostics-only service — never suggest we perform repairs.`;
+  const sys=`You are a professional automotive diagnostics report writer for AutoMedic Diagnostics. Write customer-facing reports in plain English -- no jargon, no codes the customer cannot understand. Sound confident, professional, and helpful. AutoMedic is a mobile diagnostics-only service -- never suggest we perform repairs.`;
 
   const msg=`Write a professional customer diagnostic report using this data:
 
@@ -1834,7 +1874,7 @@ ${contextToText(ctx)}
 
 Format the report exactly like this:
 
-AUTOMEDIC DIAGNOSTICS — DIAGNOSTIC REPORT
+AUTOMEDIC DIAGNOSTICS -- DIAGNOSTIC REPORT
 We Give Answers, Not Codes.
 Phone: 850-368-2285 | automedicdiagnostics.com
 ---
@@ -1845,13 +1885,13 @@ Date: ${new Date().toLocaleDateString()}
 ---
 
 WHAT WE FOUND:
-[Plain English explanation of the problem found — what system, what is happening, what the data showed. No codes. 2-4 sentences.]
+[Plain English explanation of the problem found -- what system, what is happening, what the data showed. No codes. 2-4 sentences.]
 
 ROOT CAUSE:
-[Single most probable cause in plain English — what part or system is actually failing and why.]
+[Single most probable cause in plain English -- what part or system is actually failing and why.]
 
 WHAT THIS MEANS FOR YOUR VEHICLE:
-[Driveability impact — is it safe to drive? Is it urgent? What happens if left unrepaired? 2-3 sentences.]
+[Driveability impact -- is it safe to drive? Is it urgent? What happens if left unrepaired? 2-3 sentences.]
 
 RECOMMENDED NEXT STEP:
 [What the customer should tell a repair shop. Specific, actionable. Reference the root cause directly.]
@@ -1876,13 +1916,13 @@ function downloadAIReport(){
   a.click();URL.revokeObjectURL(a.href);
 }
 
-// ── FEATURE 4: Fuel Trim AI Interpreter ───────────────────────────────────────
+// -- FEATURE 4: Fuel Trim AI Interpreter ---------------------------------------
 async function runFuelTrimAI(){
   const ctx=buildDiagContext();
   if(!ctx.stft1&&!ctx.ltft1&&!ctx.idleStft1){
     alert('Enter fuel trim values in the Dashboard Quick Live Data or the Live Data Import tab first.');return;
   }
-  const sys=`You are an expert automotive diagnostician specializing in fuel trim analysis. Give a single, confident interpretation of fuel trim patterns — what the data points to, why, and what to check first.`;
+  const sys=`You are an expert automotive diagnostician specializing in fuel trim analysis. Give a single, confident interpretation of fuel trim patterns -- what the data points to, why, and what to check first.`;
 
   const msg=`Analyze these fuel trim readings for a ${ctx.vehicle}:
 
@@ -1906,16 +1946,16 @@ DTCs: ${ctx.dtcs.join(', ')||'none'}
 Symptom: ${ctx.symptom||'none'}
 
 Tell me:
-1. PATTERN — what this trim pattern means (vacuum leak, fuel delivery, MAF, injector, etc.)
-2. CONFIDENCE — how certain you are and what would change the diagnosis
-3. FIRST TEST — the single most important test to run right now
-4. WHAT TO TELL THE SHOP — in plain terms`;
+1. PATTERN -- what this trim pattern means (vacuum leak, fuel delivery, MAF, injector, etc.)
+2. CONFIDENCE -- how certain you are and what would change the diagnosis
+3. FIRST TEST -- the single most important test to run right now
+4. WHAT TO TELL THE SHOP -- in plain terms`;
 
   showTab('ai');
   await streamClaude(sys,msg,'ftAIBox','ftAIThinking','ftAIActions');
 }
 
-// ── Shared helpers ─────────────────────────────────────────────────────────────
+// -- Shared helpers -------------------------------------------------------------
 function clearAIBox(boxId, thinkId, actId){
   const b=$(boxId),t=$(thinkId),a=$(actId);
   if(b){b.style.display='none';b.textContent=''}
@@ -1926,7 +1966,7 @@ function clearAIBox(boxId, thinkId, actId){
 function copyAIText(boxId){
   const txt=$(boxId)?.textContent||'';
   if(!txt){alert('Nothing to copy yet.');return;}
-  navigator.clipboard?.writeText(txt).then(()=>alert('Copied!')).catch(()=>alert('Copy blocked — select text manually.'));
+  navigator.clipboard?.writeText(txt).then(()=>alert('Copied!')).catch(()=>alert('Copy blocked -- select text manually.'));
 }
 
 // Auto-refresh DTC chips when codes change
@@ -1935,9 +1975,9 @@ function copyAIText(boxId){
   if(el)el.addEventListener('input',()=>setTimeout(refreshDTCChips,300));
 });
 
-// ── AUTO AI BASELINE LOOKUP ────────────────────────────────────────────────────
+// -- AUTO AI BASELINE LOOKUP ----------------------------------------------------
 // Fires automatically after VIN pull. Asks Claude for vehicle-specific
-// baseline specs — fuel pressure, MAF, O2 type, common failures, idle RPM.
+// baseline specs -- fuel pressure, MAF, O2 type, common failures, idle RPM.
 // Fills the OEM baseline fields and displays a status note.
 async function autoBaselineLookup(){
   const year=val('year'), make=val('make'), model=val('model'), engine=val('engine');
@@ -1951,7 +1991,7 @@ async function autoBaselineLookup(){
     if(vinStatusEl){vinStatusEl.textContent=msg;vinStatusEl.className=cls;}
   };
 
-  setMsg('🤖 AI looking up baselines for '+year+' '+make+' '+model+'…');
+  setMsg('[AI] AI looking up baselines for '+year+' '+make+' '+model+'...');
 
   try{
     const response = await fetch('https://api.anthropic.com/v1/messages',{
@@ -2007,7 +2047,7 @@ Return ONLY this JSON object with no other text:
     const clean = raw.replace(/```json|```/g,'').trim();
     const specs = JSON.parse(clean);
 
-    // Apply to spec fields — only fill if not already manually entered
+    // Apply to spec fields -- only fill if not already manually entered
     const setSpec=(id,val)=>{if(val!==null&&val!==undefined&&$(id)&&!$(id).value) set(id,val);};
     const setSpecAlways=(id,val)=>{if(val!==null&&val!==undefined&&$(id)) set(id,val);};
 
@@ -2026,10 +2066,10 @@ Return ONLY this JSON object with no other text:
 
     // Build a summary note for the baseline section
     let baselineNote = `AI Baselines for ${year} ${make} ${model}:\n`;
-    if(specs.fuelPressureMin) baselineNote += `Fuel Pressure: ${specs.fuelPressureMin}–${specs.fuelPressureMax} PSI\n`;
-    if(specs.mafIdleMin)      baselineNote += `MAF Idle: ${specs.mafIdleMin}–${specs.mafIdleMax} g/s\n`;
-    if(specs.mapIdleMin)      baselineNote += `MAP Idle: ${specs.mapIdleMin}–${specs.mapIdleMax} kPa\n`;
-    if(specs.idleRpmMin)      baselineNote += `Idle RPM: ${specs.idleRpmMin}–${specs.idleRpmMax}\n`;
+    if(specs.fuelPressureMin) baselineNote += `Fuel Pressure: ${specs.fuelPressureMin}-${specs.fuelPressureMax} PSI\n`;
+    if(specs.mafIdleMin)      baselineNote += `MAF Idle: ${specs.mafIdleMin}-${specs.mafIdleMax} g/s\n`;
+    if(specs.mapIdleMin)      baselineNote += `MAP Idle: ${specs.mapIdleMin}-${specs.mapIdleMax} kPa\n`;
+    if(specs.idleRpmMin)      baselineNote += `Idle RPM: ${specs.idleRpmMin}-${specs.idleRpmMax}\n`;
     if(specs.o2Type)          baselineNote += `O2 Type: ${specs.o2Type}\n`;
     if(specs.commonFailures)  baselineNote += `\nKnown Failures: ${specs.commonFailures}`;
     if(specs.notes)           baselineNote += `\nNotes: ${specs.notes}`;
@@ -2046,29 +2086,29 @@ Return ONLY this JSON object with no other text:
     updateReadiness();
 
     // Update status with summary
-    const fuelStr = specs.fuelPressureMin ? `Fuel: ${specs.fuelPressureMin}–${specs.fuelPressureMax}psi` : '';
-    const mafStr  = specs.mafIdleMin      ? `MAF: ${specs.mafIdleMin}–${specs.mafIdleMax}g/s` : '';
-    const summary = [fuelStr,mafStr].filter(Boolean).join(' • ');
-    setMsg(`✅ AI baselines loaded${summary?' — '+summary:''}. Review Values Hub for full specs.`,'okbox');
+    const fuelStr = specs.fuelPressureMin ? `Fuel: ${specs.fuelPressureMin}-${specs.fuelPressureMax}psi` : '';
+    const mafStr  = specs.mafIdleMin      ? `MAF: ${specs.mafIdleMin}-${specs.mafIdleMax}g/s` : '';
+    const summary = [fuelStr,mafStr].filter(Boolean).join(' - ');
+    setMsg(`[OK] AI baselines loaded${summary?' -- '+summary:''}. Review Values Hub for full specs.`,'okbox');
 
     // Store for reference
     window._lastBaselines = specs;
 
   }catch(e){
-    // Fail silently — baseline lookup is a bonus, not critical
+    // Fail silently -- baseline lookup is a bonus, not critical
     const setMsg2=(msg,cls='okbox')=>{
       if(statusEl){statusEl.textContent=msg;statusEl.className=cls;}
     };
-    setMsg2('✅ VIN + recalls + known complaints loaded. Review Values Hub.','okbox');
+    setMsg2('[OK] VIN + recalls + known complaints loaded. Review Values Hub.','okbox');
     console.warn('AI baseline lookup failed:', e.message);
   }
 }
 
 
-// ── PDF PASTE DETECTOR ─────────────────────────────────────────────────────────
+// -- PDF PASTE DETECTOR ---------------------------------------------------------
 function detectPDFPaste(el){
   const text = el.value;
-  const isPDF = text.startsWith('%PDF') || text.includes('\x00') || /^[\x00-\x08\x0b\x0c\x0e-\x1f]{3}/.test(text);
+  const isPDF = text.startsWith('%PDF') || /^[\u0000-\u0008\u000b\u000c\u000e-\u001f]{3}/.test(text);
   const warn = $('pdfPasteWarning');
   if(warn) warn.style.display = isPDF ? '' : 'none';
   if(isPDF) el.value = ''; // clear the binary garbage
@@ -2078,7 +2118,17 @@ function hidePDFWarning(){
 }
 
 
-// ── INIT ───────────────────────────────────────────────────────────────────────
+// -- SAFARI-SAFE ABORT HELPER ---------------------------------------------------
+// safeAbort() is not supported in iOS Safari < 16
+// Use this wrapper instead everywhere
+function safeAbort(ms){
+  const ctrl = new AbortController();
+  setTimeout(()=>ctrl.abort(), ms);
+  return ctrl.signal;
+}
+
+
+// -- INIT -----------------------------------------------------------------------
 qsa('input,select,textarea').forEach(e=>e.addEventListener('input',updateReadiness));
 generateDiagramPack();
 estimateBaselines();
